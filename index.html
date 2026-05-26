@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#1a1a2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Sankalp Classes — Admission</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f1a;
+    --surface: #1a1a2e;
+    --card: #16213e;
+    --accent: #e94560;
+    --accent2: #f5a623;
+    --green: #0fcf7a;
+    --text: #e8e8f0;
+    --muted: #8888aa;
+    --border: #2a2a4a;
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Baloo 2', 'Noto Sans Devanagari', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    padding: 20px 20px 16px;
+    border-bottom: 2px solid var(--accent);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+  .header p { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+  /* Progress Steps */
+  .steps {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    gap: 0;
+  }
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
+  }
+  .step-circle {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    transition: all 0.3s;
+    position: relative; z-index: 1;
+  }
+  .step.active .step-circle {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: white;
+  }
+  .step.done .step-circle {
+    border-color: var(--green);
+    background: var(--green);
+    color: #0f0f1a;
+  }
+  .step-label {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 4px;
+    text-align: center;
+    font-weight: 600;
+  }
+  .step.active .step-label { color: var(--accent); }
+  .step.done .step-label { color: var(--green); }
+  .step-line {
+    height: 2px;
+    background: var(--border);
+    flex: 1;
+    margin-bottom: 18px;
+    transition: all 0.3s;
+  }
+  .step-line.done { background: var(--green); }
+
+  /* Content */
+  .content { padding: 0 16px; }
+
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 20px 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title span {
+    background: var(--accent);
+    color: white;
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+
+  /* Form Fields */
+  .field { margin-bottom: 14px; }
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .field input, .field select {
+    width: 100%;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 13px 16px;
+    color: var(--text);
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  .field input:focus, .field select:focus {
+    border-color: var(--accent);
+  }
+  .field select option { background: var(--card); }
+
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* Subject Cards */
+  .subjects-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+  .subject-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    user-select: none;
+  }
+  .subject-card.selected {
+    border-color: var(--accent);
+    background: rgba(233,69,96,0.1);
+  }
+  .subject-card .sub-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .subject-card .sub-fee {
+    font-size: 13px;
+    color: var(--accent2);
+    font-weight: 600;
+    margin-top: 4px;
+  }
+  .subject-card .check {
+    position: absolute;
+    top: 8px; right: 8px;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: none;
+    align-items: center; justify-content: center;
+    font-size: 11px;
+    color: white;
+  }
+  .subject-card.selected .check { display: flex; }
+
+  /* Fee Summary */
+  .fee-box {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-top: 16px;
+  }
+  .fee-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .fee-row:last-child { border-bottom: none; }
+  .fee-row .label { color: var(--muted); }
+  .fee-row .value { font-weight: 700; }
+  .fee-row.total { padding-top: 12px; }
+  .fee-row.total .label { color: var(--text); font-weight: 700; font-size: 16px; }
+  .fee-row.total .value { color: var(--green); font-size: 20px; }
+  .fee-row.original .value { color: var(--accent2); }
+  .fee-row.discount .value { color: var(--accent); }
+
+  /* Adjust Fee */
+  .adjust-section {
+    background: var(--surface);
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-top: 12px;
+  }
+  .adjust-section h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent2);
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .adjust-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* Confirm Card */
+  .confirm-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .confirm-card-header {
+    background: var(--surface);
+    padding: 10px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .confirm-card-body { padding: 14px 16px; }
+  .confirm-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .confirm-row:last-child { border-bottom: none; }
+  .confirm-row .k { color: var(--muted); }
+  .confirm-row .v { font-weight: 600; text-align: right; max-width: 60%; }
+
+  /* Buttons */
+  .btn {
+    width: 100%;
+    padding: 16px;
+    border-radius: 14px;
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #c73652);
+    color: white;
+  }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-secondary {
+    background: var(--surface);
+    color: var(--muted);
+    border: 1.5px solid var(--border);
+  }
+  .btn-success {
+    background: linear-gradient(135deg, var(--green), #0aad67);
+    color: #0f0f1a;
+  }
+
+  /* Badge */
+  .badge {
+    display: inline-block;
+    background: rgba(233,69,96,0.15);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    margin: 2px;
+  }
+  .badge.green {
+    background: rgba(15,207,122,0.15);
+    color: var(--green);
+    border-color: var(--green);
+  }
+
+  /* Success Screen */
+  .success-screen {
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .success-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+  }
+  .success-screen h2 {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--green);
+    margin-bottom: 8px;
+  }
+  .success-screen p { color: var(--muted); font-size: 15px; }
+
+  .roll-display {
+    background: var(--card);
+    border: 2px solid var(--green);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin: 20px 0;
+  }
+  .roll-display .roll-label { font-size: 12px; color: var(--muted); font-weight: 600; }
+  .roll-display .roll-num { font-size: 36px; font-weight: 800; color: var(--accent2); }
+
+  /* Sheet Info */
+  .sheet-info {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin: 16px 0;
+  }
+  .sheet-info h3 { font-size: 14px; font-weight: 700; color: var(--accent2); margin-bottom: 10px; }
+  .sheet-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .sheet-table th {
+    background: var(--bg);
+    color: var(--muted);
+    padding: 8px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 11px;
+  }
+  .sheet-table td {
+    padding: 7px 8px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  .sheet-table tr:last-child td { border-bottom: none; }
+
+  .hidden { display: none !important; }
+
+  /* Notice box */
+  .notice {
+    background: rgba(245,166,35,0.1);
+    border: 1px solid var(--accent2);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--accent2);
+    margin: 12px 0;
+    display: flex; gap: 8px; align-items: flex-start;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>⚡ Sankalp Classes</h1>
+  <p>नवीन Admission — Admin Panel</p>
+</div>
+
+<!-- Steps -->
+<div class="steps">
+  <div class="step active" id="step1-indicator">
+    <div class="step-circle">1</div>
+    <div class="step-label">Details</div>
+  </div>
+  <div class="step-line" id="line1"></div>
+  <div class="step" id="step2-indicator">
+    <div class="step-circle">2</div>
+    <div class="step-label">Fee</div>
+  </div>
+  <div class="step-line" id="line2"></div>
+  <div class="step" id="step3-indicator">
+    <div class="step-circle">3</div>
+    <div class="step-label">Confirm</div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ===== STEP 1: Student Details ===== -->
+<div id="page1">
+  <div class="section-title"><span>1</span> विद्यार्थी माहिती</div>
+
+  <div class="field">
+    <label>विद्यार्थ्याचे पूर्ण नाव *</label>
+    <input type="text" id="studentName" placeholder="उदा. राहुल विठ्ठल पाटील">
+  </div>
+  <div class="field">
+    <label>वडिलांचे / पालकाचे नाव *</label>
+    <input type="text" id="fatherName" placeholder="उदा. विठ्ठल दत्तात्रय पाटील">
+  </div>
+  <div class="field">
+    <label>Contact Number *</label>
+    <input type="tel" id="contact" placeholder="9876543210" maxlength="10">
+  </div>
+  <div class="row">
+    <div class="field">
+      <label>इयत्ता (Class) *</label>
+      <select id="classSelect" onchange="onClassChange()">
+        <option value="">-- निवडा --</option>
+        <option value="1">1st</option>
+        <option value="2">2nd</option>
+        <option value="3">3rd</option>
+        <option value="4">4th</option>
+        <option value="5">5th</option>
+        <option value="6">6th</option>
+        <option value="7">7th</option>
+        <option value="8">8th</option>
+        <option value="9">9th</option>
+        <option value="10">10th</option>
+        <option value="11">11th Science</option>
+        <option value="12">12th Science</option>
+      </select>
+    </div>
+    <div class="field" id="mediumField">
+      <label>माध्यम (Medium)</label>
+      <select id="mediumSelect">
+        <option value="">-- निवडा --</option>
+        <option value="Semi">Semi</option>
+        <option value="Marathi">Marathi</option>
+      </select>
+    </div>
+  </div>
+  <div class="field">
+    <label>Admission Date</label>
+    <input type="date" id="admDate">
+  </div>
+
+  <button class="btn btn-primary" onclick="goToStep2()">पुढे → Fee निवडा</button>
+</div>
+
+<!-- ===== STEP 2: Subject & Fee ===== -->
+<div id="page2" class="hidden">
+  <div class="section-title"><span>2</span> Subjects & Fee</div>
+
+  <div class="notice">
+    📚 खाली subjects निवडा. Fee automatically calculate होईल.
+  </div>
+
+  <div id="subjectsContainer">
+    <div class="subjects-grid" id="subjectsGrid"></div>
+  </div>
+
+  <!-- Fee Summary -->
+  <div class="fee-box" id="feeSummaryBox">
+    <div class="fee-row original">
+      <span class="label">Original Fee</span>
+      <span class="value" id="originalFeeDisplay">₹0</span>
+    </div>
+    <div class="fee-row discount" id="discountRow" style="display:none">
+      <span class="label">Adjustment</span>
+      <span class="value" id="discountDisplay">-₹0</span>
+    </div>
+    <div class="fee-row total">
+      <span class="label">Final Fee</span>
+      <span class="value" id="finalFeeDisplay">₹0</span>
+    </div>
+  </div>
+
+  <!-- Adjust Fee -->
+  <div class="adjust-section">
+    <h3>⚙️ Fee Adjust करा (Optional)</h3>
+    <div class="adjust-row">
+      <div class="field">
+        <label>Adjusted Fee (₹)</label>
+        <input type="number" id="adjustedFee" placeholder="0" oninput="updateFeeDisplay()">
+      </div>
+      <div class="field">
+        <label>Reason</label>
+        <select id="adjustReason">
+          <option value="">-- कारण --</option>
+          <option value="Discount">Discount</option>
+          <option value="Late Joining">Late Joining</option>
+          <option value="Sibling Concession">Sibling Concession</option>
+          <option value="Special Case">Special Case</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="field" id="reasonNoteField" style="display:none">
+      <label>Note</label>
+      <input type="text" id="reasonNote" placeholder="थोडक्यात कारण लिहा...">
+    </div>
+  </div>
+
+  <button class="btn btn-primary" onclick="goToStep3()">पुढे → Confirm करा</button>
+  <button class="btn btn-secondary" onclick="goToStep1()">← मागे</button>
+</div>
+
+<!-- ===== STEP 3: Confirm ===== -->
+<div id="page3" class="hidden">
+  <div class="section-title"><span>3</span> Confirm करा</div>
+
+  <div class="confirm-card">
+    <div class="confirm-card-header">👤 विद्यार्थी माहिती</div>
+    <div class="confirm-card-body" id="confirmStudentDetails"></div>
+  </div>
+
+  <div class="confirm-card">
+    <div class="confirm-card-header">📚 Subjects</div>
+    <div class="confirm-card-body" id="confirmSubjects"></div>
+  </div>
+
+  <div class="confirm-card">
+    <div class="confirm-card-header">💰 Fee Details</div>
+    <div class="confirm-card-body" id="confirmFeeDetails"></div>
+  </div>
+
+  <div class="notice" id="confirmAdjustNote" style="display:none">
+    ⚠️ Fee adjust केली आहे — reason: <strong id="confirmReasonText"></strong>
+  </div>
+
+  <button class="btn btn-success" onclick="submitAdmission()">✅ Admission Save करा</button>
+  <button class="btn btn-secondary" onclick="goToStep2()">← मागे</button>
+</div>
+
+<!-- ===== SUCCESS ===== -->
+<div id="pageSuccess" class="hidden">
+  <div class="success-screen">
+    <div class="success-icon">🎉</div>
+    <h2>Admission झाले!</h2>
+    <p>विद्यार्थी यशस्वीरित्या नोंदणी झाला</p>
+
+    <div class="roll-display">
+      <div class="roll-label">Roll Number</div>
+      <div class="roll-num" id="successRoll">SKL-001</div>
+      <div style="font-size:13px; color:var(--muted); margin-top:4px;" id="successName"></div>
+    </div>
+
+    <div id="successSummary"></div>
+
+    <button class="btn btn-primary" onclick="newAdmission()" style="margin-top:20px">+ नवीन Admission</button>
+  </div>
+
+  <!-- Sheet Structure Info -->
+  <div class="sheet-info">
+    <h3>📊 Google Sheet — Column Structure</h3>
+    <p style="font-size:12px; color:var(--muted); margin-bottom:10px;">हे columns तुमच्या Google Sheet मध्ये ठेवा:</p>
+
+    <p style="font-size:11px; color:var(--accent); font-weight:700; margin:8px 0 4px;">Sheet 1: Admissions</p>
+    <table class="sheet-table">
+      <tr><th>Column</th><th>Field</th></tr>
+      <tr><td>A</td><td>Roll No (SKL-001)</td></tr>
+      <tr><td>B</td><td>Student Name</td></tr>
+      <tr><td>C</td><td>Father Name</td></tr>
+      <tr><td>D</td><td>Contact</td></tr>
+      <tr><td>E</td><td>Class</td></tr>
+      <tr><td>F</td><td>Medium</td></tr>
+      <tr><td>G</td><td>Subjects (comma separated)</td></tr>
+      <tr><td>H</td><td>Original Fee</td></tr>
+      <tr><td>I</td><td>Adjusted Fee</td></tr>
+      <tr><td>J</td><td>Final Fee (=I if adjusted, else H)</td></tr>
+      <tr><td>K</td><td>Adjustment Reason</td></tr>
+      <tr><td>L</td><td>Reason Note</td></tr>
+      <tr><td>M</td><td>Admission Date</td></tr>
+      <tr><td>N</td><td>Status (Active/Inactive)</td></tr>
+    </table>
+
+    <p style="font-size:11px; color:var(--accent); font-weight:700; margin:12px 0 4px;">Sheet 2: Fee_Master</p>
+    <table class="sheet-table">
+      <tr><th>Column</th><th>Field</th></tr>
+      <tr><td>A</td><td>Class</td></tr>
+      <tr><td>B</td><td>Medium (Semi/Marathi/NA)</td></tr>
+      <tr><td>C</td><td>Subject</td></tr>
+      <tr><td>D</td><td>Fee (₹)</td></tr>
+    </table>
+
+    <p style="font-size:11px; color:var(--accent); font-weight:700; margin:12px 0 4px;">Sheet 3: Fee_Adjustments</p>
+    <table class="sheet-table">
+      <tr><th>Column</th><th>Field</th></tr>
+      <tr><td>A</td><td>Date</td></tr>
+      <tr><td>B</td><td>Roll No</td></tr>
+      <tr><td>C</td><td>Student Name</td></tr>
+      <tr><td>D</td><td>Original Fee</td></tr>
+      <tr><td>E</td><td>Adjusted Fee</td></tr>
+      <tr><td>F</td><td>Reason</td></tr>
+      <tr><td>G</td><td>Note</td></tr>
+    </table>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<script>
+// ===== APPS SCRIPT URL =====
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbznCMImMCifV8RBAgavb2F6M9ya-wB-9QlFVhBwn3M42nMM_a6EMlGP1xKh-RiynJ5ALg/exec';
+
+// Fee Master — Sheet मधून load होईल, fallback demo data
+let FEE_MASTER = {};
+let feeLoaded = false;
+
+// Demo fallback (Sheet load नाही झाली तर)
+const FEE_DEMO = {
+  "1": { "Semi": { "Mathematics": 800, "English": 700, "Science": 700 }, "Marathi": { "Mathematics": 700, "English": 600 } },
+  "2": { "Semi": { "Mathematics": 800, "English": 700, "Science": 700 }, "Marathi": { "Mathematics": 700, "English": 600 } },
+  "3": { "Semi": { "Mathematics": 900, "English": 750, "Science": 750 }, "Marathi": { "Mathematics": 800, "English": 650 } },
+  "4": { "Semi": { "Mathematics": 900, "English": 750, "Science": 750 }, "Marathi": { "Mathematics": 800, "English": 650 } },
+  "5": { "Semi": { "Mathematics": 1000, "English": 800, "Science": 800 }, "Marathi": { "Mathematics": 900, "English": 700 } },
+  "6": { "Semi": { "Mathematics": 1000, "English": 800, "Science": 800 }, "Marathi": { "Mathematics": 900, "English": 700 } },
+  "7": { "Semi": { "Mathematics": 1100, "English": 850, "Science": 850 }, "Marathi": { "Mathematics": 1000, "English": 750 } },
+  "8": { "Semi": { "Mathematics": 1500, "English": 1200, "Science": 1400 }, "Marathi": { "Mathematics": 1300, "English": 1000 } },
+  "9": { "Semi": { "Mathematics": 1600, "English": 1200, "Science": 1500 }, "Marathi": { "Mathematics": 1400, "English": 1000 } },
+  "10": { "Semi": { "Mathematics": 2000, "English": 1500, "Science": 1800 }, "Marathi": { "Mathematics": 1800, "English": 1300 } },
+  "11": { "NA": { "Mathematics": 3000, "Physics": 3000, "Chemistry": 2800, "Biology": 2500 } },
+  "12": { "NA": { "Mathematics": 3500, "Physics": 3500, "Chemistry": 3000, "Biology": 2800 } },
+};
+
+// ===== SHEET मधून FEE MASTER LOAD =====
+async function loadFeeMaster() {
+  try {
+    const res = await fetch(SCRIPT_URL);
+    const data = await res.json();
+    if (data && Object.keys(data).length > 0) {
+      FEE_MASTER = data;
+      feeLoaded = true;
+      console.log('✅ Fee Master Sheet मधून load झाला');
+    } else {
+      throw new Error('empty');
+    }
+  } catch (e) {
+    FEE_MASTER = FEE_DEMO;
+    console.log('⚠️ Demo data वापरत आहे');
+  }
+}
+
+let selectedSubjects = {};
+let originalFee = 0;
+
+// ===== CLASS CHANGE =====
+function onClassChange() {
+  const cls = document.getElementById('classSelect').value;
+  const medField = document.getElementById('mediumField');
+  if (cls === '11' || cls === '12') {
+    medField.style.opacity = '0.4';
+    document.getElementById('mediumSelect').value = '';
+    document.getElementById('mediumSelect').disabled = true;
+  } else {
+    medField.style.opacity = '1';
+    document.getElementById('mediumSelect').disabled = false;
+  }
+}
+
+// ===== STEP 1 → 2 =====
+function goToStep2() {
+  const name = document.getElementById('studentName').value.trim();
+  const father = document.getElementById('fatherName').value.trim();
+  const contact = document.getElementById('contact').value.trim();
+  const cls = document.getElementById('classSelect').value;
+  const medium = document.getElementById('mediumSelect').value;
+
+  if (!name || !father || !contact || !cls) {
+    alert('कृपया सर्व * fields भरा');
+    return;
+  }
+  if ((cls !== '11' && cls !== '12') && !medium) {
+    alert('माध्यम निवडा');
+    return;
+  }
+  if (contact.length !== 10) {
+    alert('Contact number 10 digits असावा');
+    return;
+  }
+
+  renderSubjects(cls, medium || 'NA');
+  setStep(2);
+}
+
+// ===== RENDER SUBJECTS =====
+function renderSubjects(cls, medium) {
+  selectedSubjects = {};
+  const grid = document.getElementById('subjectsGrid');
+  grid.innerHTML = '';
+  const subjects = FEE_MASTER[cls]?.[medium] || {};
+  
+  Object.entries(subjects).forEach(([sub, fee]) => {
+    const card = document.createElement('div');
+    card.className = 'subject-card';
+    card.innerHTML = `
+      <div class="check">✓</div>
+      <div class="sub-name">${sub}</div>
+      <div class="sub-fee">₹${fee.toLocaleString()}</div>
+    `;
+    card.onclick = () => toggleSubject(sub, fee, card);
+    grid.appendChild(card);
+  });
+
+  updateFeeDisplay();
+}
+
+function toggleSubject(sub, fee, card) {
+  if (selectedSubjects[sub]) {
+    delete selectedSubjects[sub];
+    card.classList.remove('selected');
+  } else {
+    selectedSubjects[sub] = fee;
+    card.classList.add('selected');
+  }
+  originalFee = Object.values(selectedSubjects).reduce((a, b) => a + b, 0);
+  document.getElementById('adjustedFee').value = '';
+  updateFeeDisplay();
+}
+
+// ===== FEE DISPLAY =====
+function updateFeeDisplay() {
+  originalFee = Object.values(selectedSubjects).reduce((a, b) => a + b, 0);
+  const adjusted = parseInt(document.getElementById('adjustedFee').value) || 0;
+  const reason = document.getElementById('adjustReason').value;
+
+  document.getElementById('originalFeeDisplay').textContent = '₹' + originalFee.toLocaleString();
+
+  const discountRow = document.getElementById('discountRow');
+  const reasonNoteField = document.getElementById('reasonNoteField');
+
+  if (adjusted > 0 && adjusted !== originalFee) {
+    const diff = originalFee - adjusted;
+    discountRow.style.display = 'flex';
+    document.getElementById('discountDisplay').textContent = (diff > 0 ? '-' : '+') + '₹' + Math.abs(diff).toLocaleString();
+    document.getElementById('finalFeeDisplay').textContent = '₹' + adjusted.toLocaleString();
+  } else {
+    discountRow.style.display = 'none';
+    document.getElementById('finalFeeDisplay').textContent = '₹' + originalFee.toLocaleString();
+  }
+
+  if (reason === 'Other') {
+    reasonNoteField.style.display = 'block';
+  } else {
+    reasonNoteField.style.display = 'none';
+  }
+}
+
+// ===== STEP 2 → 3 =====
+function goToStep3() {
+  if (Object.keys(selectedSubjects).length === 0) {
+    alert('कमीत कमी एक subject निवडा');
+    return;
+  }
+
+  const adjusted = parseInt(document.getElementById('adjustedFee').value) || 0;
+  const reason = document.getElementById('adjustReason').value;
+  const note = document.getElementById('reasonNote').value;
+
+  if (adjusted > 0 && !reason) {
+    alert('Fee adjust केल्यास reason निवडा');
+    return;
+  }
+
+  // Fill confirm page
+  const name = document.getElementById('studentName').value;
+  const father = document.getElementById('fatherName').value;
+  const contact = document.getElementById('contact').value;
+  const cls = document.getElementById('classSelect').value;
+  const medium = document.getElementById('mediumSelect').value;
+  const date = document.getElementById('admDate').value;
+
+  const clsLabel = cls === '11' ? '11th Science' : cls === '12' ? '12th Science' : cls + 'th';
+
+  document.getElementById('confirmStudentDetails').innerHTML = `
+    <div class="confirm-row"><span class="k">नाव</span><span class="v">${name}</span></div>
+    <div class="confirm-row"><span class="k">वडिलांचे नाव</span><span class="v">${father}</span></div>
+    <div class="confirm-row"><span class="k">Contact</span><span class="v">${contact}</span></div>
+    <div class="confirm-row"><span class="k">Class</span><span class="v">${clsLabel}</span></div>
+    ${medium ? `<div class="confirm-row"><span class="k">Medium</span><span class="v">${medium}</span></div>` : ''}
+    ${date ? `<div class="confirm-row"><span class="k">Date</span><span class="v">${date}</span></div>` : ''}
+  `;
+
+  const subList = Object.entries(selectedSubjects).map(([s, f]) =>
+    `<div class="confirm-row"><span class="k">${s}</span><span class="v">₹${f.toLocaleString()}</span></div>`
+  ).join('');
+  document.getElementById('confirmSubjects').innerHTML = subList;
+
+  const finalFee = adjusted > 0 ? adjusted : originalFee;
+  const feeHTML = `
+    <div class="confirm-row"><span class="k">Original Fee</span><span class="v" style="color:var(--accent2)">₹${originalFee.toLocaleString()}</span></div>
+    ${adjusted > 0 && adjusted !== originalFee ? `<div class="confirm-row"><span class="k">Adjusted Fee</span><span class="v" style="color:var(--accent)">₹${adjusted.toLocaleString()}</span></div>` : ''}
+    <div class="confirm-row"><span class="k" style="font-weight:700">Final Fee</span><span class="v" style="color:var(--green);font-size:18px">₹${finalFee.toLocaleString()}</span></div>
+  `;
+  document.getElementById('confirmFeeDetails').innerHTML = feeHTML;
+
+  const adjustNote = document.getElementById('confirmAdjustNote');
+  if (adjusted > 0 && adjusted !== originalFee) {
+    adjustNote.style.display = 'flex';
+    document.getElementById('confirmReasonText').textContent = reason + (note ? ' — ' + note : '');
+  } else {
+    adjustNote.style.display = 'none';
+  }
+
+  setStep(3);
+}
+
+// ===== SUBMIT → GOOGLE SHEET =====
+async function submitAdmission() {
+  const btn = document.querySelector('#page3 .btn-success');
+  btn.textContent = '⏳ Save करत आहे...';
+  btn.disabled = true;
+
+  const name = document.getElementById('studentName').value;
+  const father = document.getElementById('fatherName').value;
+  const contact = document.getElementById('contact').value;
+  const cls = document.getElementById('classSelect').value;
+  const medium = document.getElementById('mediumSelect').value;
+  const date = document.getElementById('admDate').value;
+  const adjusted = parseInt(document.getElementById('adjustedFee').value) || 0;
+  const reason = document.getElementById('adjustReason').value;
+  const note = document.getElementById('reasonNote').value;
+  const finalFee = adjusted > 0 ? adjusted : originalFee;
+
+  const payload = {
+    type: 'admission',
+    studentName: name,
+    fatherName: father,
+    contact: contact,
+    cls: cls,
+    medium: medium || 'NA',
+    subjects: Object.keys(selectedSubjects).join(', '),
+    originalFee: originalFee,
+    adjustedFee: adjusted > 0 ? adjusted : '',
+    finalFee: finalFee,
+    adjustReason: reason,
+    reasonNote: note,
+    admDate: date
+  };
+
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    const result = await res.json();
+
+    if (result.status === 'success') {
+      const rollNo = result.rollNo || 'SKL-???';
+      document.getElementById('successRoll').textContent = rollNo;
+      document.getElementById('successName').textContent = name;
+      document.getElementById('successSummary').innerHTML = `
+        <div class="confirm-card" style="margin-top:16px; text-align:left">
+          <div class="confirm-card-body">
+            <div class="confirm-row"><span class="k">Subjects</span><span class="v">${Object.keys(selectedSubjects).join(', ')}</span></div>
+            <div class="confirm-row"><span class="k">Original Fee</span><span class="v">₹${originalFee.toLocaleString()}</span></div>
+            <div class="confirm-row"><span class="k">Final Fee</span><span class="v" style="color:var(--green)">₹${finalFee.toLocaleString()}</span></div>
+          </div>
+        </div>
+      `;
+      setStep(4);
+    } else {
+      throw new Error(result.msg || 'Error');
+    }
+  } catch(e) {
+    alert('❌ Save झाले नाही — ' + e.message + '\n\nInternet connection तपासा.');
+    btn.textContent = '✅ Admission Save करा';
+    btn.disabled = false;
+  }
+}
+
+// ===== NAVIGATION =====
+function goToStep1() { setStep(1); }
+
+function setStep(n) {
+  document.getElementById('page1').classList.toggle('hidden', n !== 1);
+  document.getElementById('page2').classList.toggle('hidden', n !== 2);
+  document.getElementById('page3').classList.toggle('hidden', n !== 3);
+  document.getElementById('pageSuccess').classList.toggle('hidden', n !== 4);
+
+  // Update step indicators
+  ['step1-indicator','step2-indicator','step3-indicator'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.className = 'step';
+    if (i + 1 < n) el.classList.add('done');
+    else if (i + 1 === n) el.classList.add('active');
+  });
+  document.getElementById('line1').className = 'step-line' + (n > 1 ? ' done' : '');
+  document.getElementById('line2').className = 'step-line' + (n > 2 ? ' done' : '');
+
+  window.scrollTo(0, 0);
+}
+
+function newAdmission() {
+  document.getElementById('studentName').value = '';
+  document.getElementById('fatherName').value = '';
+  document.getElementById('contact').value = '';
+  document.getElementById('classSelect').value = '';
+  document.getElementById('mediumSelect').value = '';
+  document.getElementById('admDate').value = '';
+  document.getElementById('adjustedFee').value = '';
+  document.getElementById('adjustReason').value = '';
+  document.getElementById('reasonNote').value = '';
+  selectedSubjects = {};
+  originalFee = 0;
+  onClassChange();
+  setStep(1);
+}
+
+// Set today's date
+document.getElementById('admDate').value = new Date().toISOString().split('T')[0];
+document.getElementById('mediumSelect').disabled = false;
+
+// App सुरू होताना Fee Master load करा
+loadFeeMaster();
+</script>
+</body>
+</html>
