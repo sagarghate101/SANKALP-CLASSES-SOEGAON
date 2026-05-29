@@ -388,6 +388,16 @@
     border-radius: 14px; padding: 13px 15px; margin-bottom: 8px;
     display: flex; justify-content: space-between; align-items: center;
   }
+  /* ===== ACTIVITY SUB-TABS ===== */
+  .act-tab {
+    flex: 1; padding: 9px 4px; border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: var(--card); color: var(--muted);
+    font-family: 'Baloo 2', sans-serif; font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .act-tab.active { border-color: var(--accent); color: var(--accent); background: rgba(233,69,96,0.1); }
+
   .att-toggle {
     display: flex; border-radius: 10px; overflow: hidden; border: 1.5px solid var(--border);
   }
@@ -445,8 +455,8 @@
   <button class="nav-btn" onclick="showPage('admission')" id="nav-admission">
     <span class="icon">➕</span>Admission
   </button>
-  <button class="nav-btn" onclick="showPage('attendance')" id="nav-attendance">
-    <span class="icon">📋</span>Attendance
+  <button class="nav-btn" onclick="showPage('activity')" id="nav-activity">
+    <span class="icon">📋</span>Activity
   </button>
 </div>
 
@@ -666,30 +676,144 @@
 </div><!-- /page-admission -->
 
 <!-- ================================================================
-     PAGE 5 — ATTENDANCE
+     PAGE 5 — ACTIVITY (Attendance / Homework / Worksheet / Test)
      ================================================================ -->
-<div class="page" id="page-attendance">
-  <div class="field">
-    <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">इयत्ता निवडा *</label>
-    <select id="attClass" onchange="loadAttendanceStudents()" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:Baloo 2,sans-serif;font-size:15px;outline:none;-webkit-appearance:none;">
-      <option value="">-- Class निवडा --</option>
-    </select>
-  </div>
-  <div class="field">
-    <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">दिनांक *</label>
-    <input type="date" id="attDate" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:Baloo 2,sans-serif;font-size:15px;outline:none;">
+<div class="page" id="page-activity">
+
+  <!-- Sub-tabs -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:16px;">
+    <button class="act-tab active" id="actTab-attendance" onclick="switchActTab('attendance')">📋 Attendance</button>
+    <button class="act-tab" id="actTab-homework" onclick="switchActTab('homework')">📝 Homework</button>
+    <button class="act-tab" id="actTab-worksheet" onclick="switchActTab('worksheet')">📄 Worksheet</button>
+    <button class="act-tab" id="actTab-test" onclick="switchActTab('test')">✏️ Test</button>
   </div>
 
-  <div id="att-student-list" style="margin-top:4px"></div>
-
-  <div id="att-save-section" style="display:none">
-    <div style="display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:12px 16px;margin-bottom:12px;">
-      <span style="font-size:13px;color:var(--muted)">Present: <strong id="att-present-count" style="color:var(--green)">0</strong> | Absent: <strong id="att-absent-count" style="color:var(--accent)">0</strong></span>
-      <button onclick="markAllPresent()" style="background:rgba(15,207,122,0.15);color:var(--green);border:1px solid var(--green);border-radius:8px;padding:6px 12px;font-family:Baloo 2,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">सर्व Present</button>
+  <!-- == ATTENDANCE SUB-TAB == -->
+  <div id="act-attendance">
+    <div class="field">
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">इयत्ता निवडा *</label>
+      <select id="attClass" onchange="loadAttendanceStudents()" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:Baloo 2,sans-serif;font-size:15px;outline:none;-webkit-appearance:none;">
+        <option value="">-- Class निवडा --</option>
+      </select>
     </div>
-    <button class="btn btn-green" onclick="saveAttendance()">✅ Attendance Save करा</button>
+    <div class="field">
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">दिनांक *</label>
+      <input type="date" id="attDate" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:Baloo 2,sans-serif;font-size:15px;outline:none;">
+    </div>
+    <div id="att-student-list" style="margin-top:4px"></div>
+    <div id="att-save-section" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:12px 16px;margin-bottom:12px;">
+        <span style="font-size:13px;color:var(--muted)">Present: <strong id="att-present-count" style="color:var(--green)">0</strong> | Absent: <strong id="att-absent-count" style="color:var(--accent)">0</strong></span>
+        <button onclick="markAllPresent()" style="background:rgba(15,207,122,0.15);color:var(--green);border:1px solid var(--green);border-radius:8px;padding:6px 12px;font-family:Baloo 2,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">सर्व Present</button>
+      </div>
+      <button class="btn btn-green" onclick="saveAttendance()">✅ Attendance Save करा</button>
+    </div>
   </div>
-</div>
+
+  <!-- == HOMEWORK SUB-TAB == -->
+  <div id="act-homework" style="display:none">
+    <div class="field">
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">इयत्ता निवडा *</label>
+      <select id="hwClass" onchange="loadActivityStudents('homework')" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:Baloo 2,sans-serif;font-size:15px;outline:none;-webkit-appearance:none;">
+        <option value="">-- Class निवडा --</option>
+      </select>
+    </div>
+    <div class="field">
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">Subject *</label>
+      <select id="hwSubject" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:Baloo 2,sans-serif;font-size:15px;outline:none;-webkit-appearance:none;">
+        <option value="">-- Subject निवडा --</option>
+        <option>Mathematics</option><option>Science</option><option>English</option>
+        <option>Physics</option><option>Chemistry</option><option>Biology</option>
+      </select>
+    </div>
+    <div class="field">
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">Topic *</label>
+      <input type="text" id="hwTopic" placeholder="उदा. Algebra Chapter 2..." style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:Baloo 2,sans-serif;font-size:15px;outline:none;">
+    </div>
+    <div class="field">
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">दिनांक *</label>
+      <input type="date" id="hwDate" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:Baloo 2,sans-serif;font-size:15px;outline:none;">
+    </div>
+    <div id="hw-student-list" style="margin-top:4px"></div>
+    <div id="hw-save-section" style="display:none">
+      <div style="background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:12px 16px;margin-bottom:12px;font-size:13px;color:var(--muted)">
+        ✅ Done: <strong id="hw-done-count" style="color:var(--green)">0</strong> | ⏰ Late: <strong id="hw-late-count" style="color:var(--accent2)">0</strong> | ❌ Not Done: <strong id="hw-notdone-count" style="color:var(--accent)">0</strong>
+      </div>
+      <button class="btn btn-green" onclick="saveActivity('homework')">✅ Homework Save करा</button>
+    </div>
+  </div>
+
+  <!-- == WORKSHEET SUB-TAB == -->
+  <div id="act-worksheet" style="display:none">
+    <div class="field">
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">इयत्ता निवडा *</label>
+      <select id="wsClass" onchange="loadActivityStudents('worksheet')" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:Baloo 2,sans-serif;font-size:15px;outline:none;-webkit-appearance:none;">
+        <option value="">-- Class निवडा --</option>
+      </select>
+    </div>
+    <div class="field">
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">Subject *</label>
+      <select id="wsSubject" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:Baloo 2,sans-serif;font-size:15px;outline:none;-webkit-appearance:none;">
+        <option value="">-- Subject निवडा --</option>
+        <option>Mathematics</option><option>Science</option><option>English</option>
+        <option>Physics</option><option>Chemistry</option><option>Biology</option>
+      </select>
+    </div>
+    <div class="field">
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">Topic *</label>
+      <input type="text" id="wsTopic" placeholder="उदा. Newton's Laws..." style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:Baloo 2,sans-serif;font-size:15px;outline:none;">
+    </div>
+    <div class="field">
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">दिनांक *</label>
+      <input type="date" id="wsDate" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:Baloo 2,sans-serif;font-size:15px;outline:none;">
+    </div>
+    <div id="ws-student-list" style="margin-top:4px"></div>
+    <div id="ws-save-section" style="display:none">
+      <div style="background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:12px 16px;margin-bottom:12px;font-size:13px;color:var(--muted)">
+        ✅ Done: <strong id="ws-done-count" style="color:var(--green)">0</strong> | ⏰ Late: <strong id="ws-late-count" style="color:var(--accent2)">0</strong> | ❌ Not Done: <strong id="ws-notdone-count" style="color:var(--accent)">0</strong>
+      </div>
+      <button class="btn btn-green" onclick="saveActivity('worksheet')">✅ Worksheet Save करा</button>
+    </div>
+  </div>
+
+  <!-- == TEST SUB-TAB == -->
+  <div id="act-test" style="display:none">
+    <div class="field">
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">इयत्ता निवडा *</label>
+      <select id="testClass" onchange="loadTestStudents()" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:Baloo 2,sans-serif;font-size:15px;outline:none;-webkit-appearance:none;">
+        <option value="">-- Class निवडा --</option>
+      </select>
+    </div>
+    <div class="field">
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">Subject *</label>
+      <select id="testSubject" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:Baloo 2,sans-serif;font-size:15px;outline:none;-webkit-appearance:none;">
+        <option value="">-- Subject निवडा --</option>
+        <option>Mathematics</option><option>Science</option><option>English</option>
+        <option>Physics</option><option>Chemistry</option><option>Biology</option>
+      </select>
+    </div>
+    <div class="field">
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">Topic *</label>
+      <input type="text" id="testTopic" placeholder="उदा. Chapter 3 Test..." style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:Baloo 2,sans-serif;font-size:15px;outline:none;">
+    </div>
+    <div class="field">
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">दिनांक *</label>
+      <input type="date" id="testDate" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:Baloo 2,sans-serif;font-size:15px;outline:none;">
+    </div>
+    <div class="field">
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">Out Of (एकूण गुण) *</label>
+      <input type="number" id="testOutOf" placeholder="उदा. 25" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:Baloo 2,sans-serif;font-size:15px;outline:none;">
+    </div>
+    <div id="test-student-list" style="margin-top:4px"></div>
+    <div id="test-save-section" style="display:none">
+      <div style="background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:12px 16px;margin-bottom:12px;font-size:13px;color:var(--muted)">
+        ✅ Present: <strong id="test-present-count" style="color:var(--green)">0</strong> | ❌ Absent: <strong id="test-absent-count" style="color:var(--accent)">0</strong>
+      </div>
+      <button class="btn btn-green" onclick="saveTest()">✅ Test Save करा</button>
+    </div>
+  </div>
+
+</div><!-- /page-activity -->
 <!-- ================================================================
      STUDENT DETAIL MODAL
      ================================================================ -->
@@ -1268,14 +1392,27 @@ function newAdmission() {
 // ================================================================
 //  ATTENDANCE LOGIC
 // ================================================================
+// ACTIVITY TAB — Attendance / Homework / Worksheet
+// ================================================================
 let attStatus = {}; // rollNo → 'P' or 'A'
+let hwStatus  = {}; // rollNo → 'D' or 'N'
+let wsStatus  = {}; // rollNo → 'D' or 'N'
+
+function switchActTab(tab) {
+  ['attendance','homework','worksheet','test'].forEach(t => {
+    document.getElementById('act-' + t).style.display = t === tab ? 'block' : 'none';
+    document.getElementById('actTab-' + t).classList.toggle('active', t === tab);
+  });
+}
 
 function initAttendanceClasses() {
-  const sel = document.getElementById('attClass');
   const classes = [...new Set(allStudents.map(st => st.cls))].sort((a,b)=>a-b);
-  sel.innerHTML = '<option value="">-- Class निवडा --</option>';
-  classes.forEach(cls => {
-    sel.innerHTML += `<option value="${cls}">Class ${cls}</option>`;
+  ['attClass','hwClass','wsClass','testClass'].forEach(id => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = '<option value="">-- Class निवडा --</option>';
+    classes.forEach(cls => {
+      sel.innerHTML += `<option value="${cls}">Class ${cls}</option>`;
+    });
   });
 }
 
@@ -1327,13 +1464,225 @@ function updateAttCount() {
   document.getElementById('att-absent-count').textContent  = vals.filter(v=>v==='A').length;
 }
 
+function loadActivityStudents(type) {
+  const clsId    = type === 'homework' ? 'hwClass'   : 'wsClass';
+  const listId   = type === 'homework' ? 'hw-student-list' : 'ws-student-list';
+  const saveId   = type === 'homework' ? 'hw-save-section' : 'ws-save-section';
+  const cls      = document.getElementById(clsId).value;
+  const list     = document.getElementById(listId);
+  const saveSection = document.getElementById(saveId);
+
+  if (type === 'homework') hwStatus = {};
+  else wsStatus = {};
+
+  if (!cls) { list.innerHTML = ''; saveSection.style.display = 'none'; return; }
+
+  const students = allStudents.filter(st => st.cls === cls);
+  if (students.length === 0) { list.innerHTML = '<div class="empty">या class मध्ये कोणी नाही</div>'; return; }
+
+  // Default सर्व Done
+  students.forEach(st => {
+    if (type === 'homework') hwStatus[st.rollNo] = 'D';
+    else wsStatus[st.rollNo] = 'D';
+  });
+
+  const prefix = type === 'homework' ? 'hw' : 'ws';
+  list.innerHTML = students.map(st => `
+    <div class="att-student-row" id="${prefix}-row-${st.rollNo}">
+      <div>
+        <div style="font-size:14px;font-weight:700">${st.name}</div>
+        <div style="font-size:11px;color:var(--muted)">${st.rollNo}</div>
+      </div>
+      <div style="display:flex;gap:4px;">
+        <button id="${prefix}-btn-D-${st.rollNo}" class="present-active" onclick="setActivity('${type}','${st.rollNo}','D')" style="padding:5px 8px;border-radius:8px;border:none;font-size:11px;font-weight:700;cursor:pointer;">✅</button>
+        <button id="${prefix}-btn-L-${st.rollNo}" onclick="setActivity('${type}','${st.rollNo}','L')" style="padding:5px 8px;border-radius:8px;border:none;font-size:11px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--muted);">⏰</button>
+        <button id="${prefix}-btn-N-${st.rollNo}" onclick="setActivity('${type}','${st.rollNo}','N')" style="padding:5px 8px;border-radius:8px;border:none;font-size:11px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--muted);">❌</button>
+      </div>
+    </div>`).join('');
+
+  saveSection.style.display = 'block';
+  updateActivityCount(type);
+}
+
+function setActivity(type, rollNo, status) {
+  const prefix = type === 'homework' ? 'hw' : 'ws';
+  if (type === 'homework') hwStatus[rollNo] = status;
+  else wsStatus[rollNo] = status;
+
+  ['D','L','N'].forEach(s => {
+    const btn = document.getElementById(`${prefix}-btn-${s}-${rollNo}`);
+    if (s === status) {
+      btn.className = s === 'D' ? 'present-active' : s === 'L' ? 'late-active' : 'absent-active';
+      btn.style.background = ''; btn.style.color = '';
+    } else {
+      btn.className = '';
+      btn.style.background = 'var(--surface)';
+      btn.style.color = 'var(--muted)';
+    }
+  });
+  updateActivityCount(type);
+}
+
+function updateActivityCount(type) {
+  const statusObj = type === 'homework' ? hwStatus : wsStatus;
+  const vals = Object.values(statusObj);
+  const prefix = type === 'homework' ? 'hw' : 'ws';
+  document.getElementById(prefix + '-done-count').textContent    = vals.filter(v=>v==='D').length;
+  document.getElementById(prefix + '-late-count').textContent    = vals.filter(v=>v==='L').length;
+  document.getElementById(prefix + '-notdone-count').textContent = vals.filter(v=>v==='N').length;
+}
+
+// ===== TEST =====
+let testStatus = {}; // rollNo → { status: 'P'/'A', marks: number }
+
+function loadTestStudents() {
+  const cls  = document.getElementById('testClass').value;
+  const list = document.getElementById('test-student-list');
+  const saveSection = document.getElementById('test-save-section');
+  testStatus = {};
+
+  if (!cls) { list.innerHTML = ''; saveSection.style.display = 'none'; return; }
+
+  const students = allStudents.filter(st => st.cls === cls);
+  if (students.length === 0) { list.innerHTML = '<div class="empty">या class मध्ये कोणी नाही</div>'; return; }
+
+  students.forEach(st => { testStatus[st.rollNo] = { status: 'P', marks: '' }; });
+
+  list.innerHTML = students.map(st => `
+    <div class="att-student-row" id="test-row-${st.rollNo}">
+      <div>
+        <div style="font-size:14px;font-weight:700">${st.name}</div>
+        <div style="font-size:11px;color:var(--muted)">${st.rollNo}</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="number" id="test-marks-${st.rollNo}" placeholder="गुण" min="0"
+          oninput="testStatus['${st.rollNo}'].marks=this.value"
+          style="width:60px;background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:6px 8px;color:var(--text);font-family:Baloo 2,sans-serif;font-size:13px;outline:none;text-align:center;">
+        <div style="display:flex;gap:4px;">
+          <button id="test-btn-P-${st.rollNo}" class="present-active" onclick="setTestStatus('${st.rollNo}','P')" style="padding:5px 8px;border-radius:8px;border:none;font-size:11px;font-weight:700;cursor:pointer;">✅</button>
+          <button id="test-btn-A-${st.rollNo}" onclick="setTestStatus('${st.rollNo}','A')" style="padding:5px 8px;border-radius:8px;border:none;font-size:11px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--muted);">❌</button>
+        </div>
+      </div>
+    </div>`).join('');
+
+  saveSection.style.display = 'block';
+  updateTestCount();
+}
+
+function setTestStatus(rollNo, status) {
+  testStatus[rollNo].status = status;
+  const pBtn = document.getElementById('test-btn-P-' + rollNo);
+  const aBtn = document.getElementById('test-btn-A-' + rollNo);
+  const marksInput = document.getElementById('test-marks-' + rollNo);
+  if (status === 'P') {
+    pBtn.className = 'present-active'; pBtn.style.background = ''; pBtn.style.color = '';
+    aBtn.className = ''; aBtn.style.background = 'var(--surface)'; aBtn.style.color = 'var(--muted)';
+    marksInput.disabled = false; marksInput.style.opacity = '1';
+  } else {
+    aBtn.className = 'absent-active'; aBtn.style.background = ''; aBtn.style.color = '';
+    pBtn.className = ''; pBtn.style.background = 'var(--surface)'; pBtn.style.color = 'var(--muted)';
+    marksInput.disabled = true; marksInput.style.opacity = '0.4'; marksInput.value = '';
+    testStatus[rollNo].marks = '';
+  }
+  updateTestCount();
+}
+
+function updateTestCount() {
+  const vals = Object.values(testStatus);
+  document.getElementById('test-present-count').textContent = vals.filter(v=>v.status==='P').length;
+  document.getElementById('test-absent-count').textContent  = vals.filter(v=>v.status==='A').length;
+}
+
+async function saveTest() {
+  const cls     = document.getElementById('testClass').value;
+  const date    = document.getElementById('testDate').value;
+  const subject = document.getElementById('testSubject').value;
+  const topic   = document.getElementById('testTopic').value.trim();
+  const outOf   = document.getElementById('testOutOf').value;
+
+  if (!date)    { alert('दिनांक निवडा'); return; }
+  if (!subject) { alert('Subject निवडा'); return; }
+  if (!topic)   { alert('Topic लिहा'); return; }
+  if (!outOf)   { alert('Out Of लिहा'); return; }
+  if (Object.keys(testStatus).length === 0) { alert('Students नाहीत'); return; }
+
+  const btn = document.querySelector('#test-save-section .btn-green');
+  btn.textContent = '⏳ Save करत आहे...'; btn.disabled = true;
+
+  const records = Object.entries(testStatus).map(([rollNo, d]) => {
+    const st = allStudents.find(s => s.rollNo === rollNo);
+    return { date, rollNo, studentName: st?.name || '', cls, subject, topic,
+             status: d.status === 'P' ? 'Present' : 'Absent',
+             marks: d.status === 'P' ? (d.marks || '') : '', outOf };
+  });
+
+  const payload = { type: 'test', records };
+  const params  = new URLSearchParams({ data: JSON.stringify(payload) });
+
+  try {
+    await fetch(SCRIPT_URL + '?' + params.toString(), { mode: 'no-cors' });
+    const present = records.filter(r=>r.status==='Present').length;
+    alert(`✅ Test save झाले!\nPresent: ${present} | Absent: ${records.length - present}`);
+  } catch(e) {
+    alert('❌ Save नाही झाले');
+  }
+  btn.textContent = '✅ Test Save करा'; btn.disabled = false;
+}
+
+
+async function saveActivity(type) {
+  const clsId     = type === 'homework' ? 'hwClass'   : 'wsClass';
+  const dateId    = type === 'homework' ? 'hwDate'    : 'wsDate';
+  const subjectId = type === 'homework' ? 'hwSubject' : 'wsSubject';
+  const topicId   = type === 'homework' ? 'hwTopic'   : 'wsTopic';
+  const statusObj = type === 'homework' ? hwStatus    : wsStatus;
+
+  const cls     = document.getElementById(clsId).value;
+  const date    = document.getElementById(dateId).value;
+  const subject = document.getElementById(subjectId).value;
+  const topic   = document.getElementById(topicId).value.trim();
+
+  if (!date)    { alert('दिनांक निवडा'); return; }
+  if (!subject) { alert('Subject निवडा'); return; }
+  if (!topic)   { alert('Topic लिहा'); return; }
+  if (Object.keys(statusObj).length === 0) { alert('Students नाहीत'); return; }
+
+  const btn = type === 'homework'
+    ? document.querySelector('#hw-save-section .btn-green')
+    : document.querySelector('#ws-save-section .btn-green');
+  btn.textContent = '⏳ Save करत आहे...';
+  btn.disabled = true;
+
+  const records = Object.entries(statusObj).map(([rollNo, status]) => {
+    const st = allStudents.find(s => s.rollNo === rollNo);
+    const statusText = status === 'D' ? 'Done' : status === 'L' ? 'Late' : 'Not Done';
+    return { date, rollNo, studentName: st?.name || '', cls, subject, topic, status: statusText };
+  });
+
+  const payload = { type, records };
+  const params  = new URLSearchParams({ data: JSON.stringify(payload) });
+
+  try {
+    await fetch(SCRIPT_URL + '?' + params.toString(), { mode: 'no-cors' });
+    const done    = records.filter(r => r.status === 'Done').length;
+    const late    = records.filter(r => r.status === 'Late').length;
+    const notDone = records.filter(r => r.status === 'Not Done').length;
+    alert(`✅ ${type === 'homework' ? 'Homework' : 'Worksheet'} save झाले!\n✅ Done: ${done} | ⏰ Late: ${late} | ❌ Not Done: ${notDone}`);
+  } catch(e) {
+    alert('❌ Save नाही झाले');
+  }
+  btn.textContent = type === 'homework' ? '✅ Homework Save करा' : '✅ Worksheet Save करा';
+  btn.disabled = false;
+}
+
+
 async function saveAttendance() {
   const cls  = document.getElementById('attClass').value;
   const date = document.getElementById('attDate').value;
   if (!date) { alert('दिनांक निवडा'); return; }
   if (Object.keys(attStatus).length === 0) { alert('Students नाहीत'); return; }
 
-  const btn = document.querySelector('#page-attendance .btn-green');
+  const btn = document.querySelector('#act-attendance .btn-green');
   btn.textContent = '⏳ Save करत आहे...';
   btn.disabled = true;
 
@@ -1363,7 +1712,11 @@ document.getElementById('payDate').value = new Date().toISOString().split('T')[0
 // Dashboard data + Fee Master दोन्ही एकत्र load करा
 loadData();
 loadFeeMaster();
-document.getElementById('attDate').value = new Date().toISOString().split('T')[0];
+const todayDate = new Date().toISOString().split('T')[0];
+document.getElementById('attDate').value  = todayDate;
+document.getElementById('hwDate').value   = todayDate;
+document.getElementById('wsDate').value   = todayDate;
+document.getElementById('testDate').value = todayDate;
 </script>
 </body>
 </html>
