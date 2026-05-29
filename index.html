@@ -381,6 +381,24 @@
   .roll-display .roll-label { font-size: 12px; color: var(--muted); font-weight: 600; }
   .roll-display .roll-num { font-size: 36px; font-weight: 800; color: var(--accent2); }
 
+
+  /* ===== ATTENDANCE ===== */
+  .att-student-row {
+    background: var(--card); border: 1.5px solid var(--border);
+    border-radius: 14px; padding: 13px 15px; margin-bottom: 8px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .att-toggle {
+    display: flex; border-radius: 10px; overflow: hidden; border: 1.5px solid var(--border);
+  }
+  .att-toggle button {
+    padding: 7px 14px; border: none; cursor: pointer;
+    font-family: Baloo 2, sans-serif; font-size: 12px; font-weight: 700;
+    background: var(--surface); color: var(--muted); transition: all 0.2s;
+  }
+  .att-toggle button.present-active { background: var(--green); color: #0f0f1a; }
+  .att-toggle button.absent-active  { background: var(--accent); color: white; }
+
   /* ===== MISC ===== */
   .notice {
     background: rgba(245,166,35,0.1); border: 1px solid var(--accent2);
@@ -426,6 +444,9 @@
   </button>
   <button class="nav-btn" onclick="showPage('admission')" id="nav-admission">
     <span class="icon">➕</span>Admission
+  </button>
+  <button class="nav-btn" onclick="showPage('attendance')" id="nav-attendance">
+    <span class="icon">📋</span>Attendance
   </button>
 </div>
 
@@ -645,6 +666,31 @@
 </div><!-- /page-admission -->
 
 <!-- ================================================================
+     PAGE 5 — ATTENDANCE
+     ================================================================ -->
+<div class="page" id="page-attendance">
+  <div class="field">
+    <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">इयत्ता निवडा *</label>
+    <select id="attClass" onchange="loadAttendanceStudents()" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:Baloo 2,sans-serif;font-size:15px;outline:none;-webkit-appearance:none;">
+      <option value="">-- Class निवडा --</option>
+    </select>
+  </div>
+  <div class="field">
+    <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">दिनांक *</label>
+    <input type="date" id="attDate" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:Baloo 2,sans-serif;font-size:15px;outline:none;">
+  </div>
+
+  <div id="att-student-list" style="margin-top:4px"></div>
+
+  <div id="att-save-section" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:12px 16px;margin-bottom:12px;">
+      <span style="font-size:13px;color:var(--muted)">Present: <strong id="att-present-count" style="color:var(--green)">0</strong> | Absent: <strong id="att-absent-count" style="color:var(--accent)">0</strong></span>
+      <button onclick="markAllPresent()" style="background:rgba(15,207,122,0.15);color:var(--green);border:1px solid var(--green);border-radius:8px;padding:6px 12px;font-family:Baloo 2,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">सर्व Present</button>
+    </div>
+    <button class="btn btn-green" onclick="saveAttendance()">✅ Attendance Save करा</button>
+  </div>
+</div>
+<!-- ================================================================
      STUDENT DETAIL MODAL
      ================================================================ -->
 <div class="modal-overlay" id="studentModal">
@@ -740,6 +786,7 @@ function loadData() {
     renderDashboard();
     renderStudents();
     renderClasses();
+    initAttendanceClasses();
     document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString('mr-IN');
   };
 
@@ -1217,6 +1264,98 @@ function newAdmission() {
   admSetStep(1);
 }
 
+
+// ================================================================
+//  ATTENDANCE LOGIC
+// ================================================================
+let attStatus = {}; // rollNo → 'P' or 'A'
+
+function initAttendanceClasses() {
+  const sel = document.getElementById('attClass');
+  const classes = [...new Set(allStudents.map(st => st.cls))].sort((a,b)=>a-b);
+  sel.innerHTML = '<option value="">-- Class निवडा --</option>';
+  classes.forEach(cls => {
+    sel.innerHTML += `<option value="${cls}">Class ${cls}</option>`;
+  });
+}
+
+function loadAttendanceStudents() {
+  const cls = document.getElementById('attClass').value;
+  const list = document.getElementById('att-student-list');
+  const saveSection = document.getElementById('att-save-section');
+  attStatus = {};
+  if (!cls) { list.innerHTML = ''; saveSection.style.display = 'none'; return; }
+
+  const students = allStudents.filter(st => st.cls === cls);
+  if (students.length === 0) { list.innerHTML = '<div class="empty">या class मध्ये कोणी नाही</div>'; return; }
+
+  // Default सर्व Present
+  students.forEach(st => { attStatus[st.rollNo] = 'P'; });
+
+  list.innerHTML = students.map(st => `
+    <div class="att-student-row" id="att-row-${st.rollNo}">
+      <div>
+        <div style="font-size:15px;font-weight:700">${st.name}</div>
+        <div style="font-size:12px;color:var(--muted)">${st.rollNo}</div>
+      </div>
+      <div class="att-toggle">
+        <button id="btn-P-${st.rollNo}" class="present-active" onclick="setAtt('${st.rollNo}','P')">✅ P</button>
+        <button id="btn-A-${st.rollNo}" onclick="setAtt('${st.rollNo}','A')">❌ A</button>
+      </div>
+    </div>`).join('');
+
+  saveSection.style.display = 'block';
+  updateAttCount();
+}
+
+function setAtt(rollNo, status) {
+  attStatus[rollNo] = status;
+  const pBtn = document.getElementById('btn-P-' + rollNo);
+  const aBtn = document.getElementById('btn-A-' + rollNo);
+  pBtn.className = status === 'P' ? 'present-active' : '';
+  aBtn.className = status === 'A' ? 'absent-active' : '';
+  updateAttCount();
+}
+
+function markAllPresent() {
+  Object.keys(attStatus).forEach(rollNo => setAtt(rollNo, 'P'));
+}
+
+function updateAttCount() {
+  const vals = Object.values(attStatus);
+  document.getElementById('att-present-count').textContent = vals.filter(v=>v==='P').length;
+  document.getElementById('att-absent-count').textContent  = vals.filter(v=>v==='A').length;
+}
+
+async function saveAttendance() {
+  const cls  = document.getElementById('attClass').value;
+  const date = document.getElementById('attDate').value;
+  if (!date) { alert('दिनांक निवडा'); return; }
+  if (Object.keys(attStatus).length === 0) { alert('Students नाहीत'); return; }
+
+  const btn = document.querySelector('#page-attendance .btn-green');
+  btn.textContent = '⏳ Save करत आहे...';
+  btn.disabled = true;
+
+  const records = Object.entries(attStatus).map(([rollNo, status]) => {
+    const st = allStudents.find(s => s.rollNo === rollNo);
+    return { date, rollNo, studentName: st?.name || '', cls, status };
+  });
+
+  const payload = { type: 'attendance', records };
+  const params  = new URLSearchParams({ data: JSON.stringify(payload) });
+
+  try {
+    await fetch(SCRIPT_URL + '?' + params.toString(), { mode: 'no-cors' });
+    alert('✅ Attendance save झाले! Present: ' + records.filter(r=>r.status==='P').length + ', Absent: ' + records.filter(r=>r.status==='A').length);
+  } catch(e) {
+    alert('❌ Save नाही झाले');
+  }
+
+  btn.textContent = '✅ Attendance Save करा';
+  btn.disabled = false;
+}
+
 // ===== INIT =====
 document.getElementById('admDate').value = new Date().toISOString().split('T')[0];
 document.getElementById('payDate').value = new Date().toISOString().split('T')[0];
@@ -1224,6 +1363,7 @@ document.getElementById('payDate').value = new Date().toISOString().split('T')[0
 // Dashboard data + Fee Master दोन्ही एकत्र load करा
 loadData();
 loadFeeMaster();
+document.getElementById('attDate').value = new Date().toISOString().split('T')[0];
 </script>
 </body>
 </html>
