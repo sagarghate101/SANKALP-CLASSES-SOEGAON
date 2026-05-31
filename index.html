@@ -432,7 +432,228 @@
 </head>
 <body>
 
-<!-- ===== HEADER ===== -->
+<!-- ===== LOGIN PAGE ===== -->
+<div id="login-page" style="position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;">
+  <div style="font-size:56px;margin-bottom:8px;">⚡</div>
+  <h1 style="font-size:26px;font-weight:800;color:var(--accent);margin-bottom:4px;">Sankalp Classes</h1>
+  <p style="color:var(--muted);font-size:13px;margin-bottom:32px;">Soegaon</p>
+
+  <!-- Admin Login -->
+  <div id="admin-login" style="width:100%;max-width:360px;">
+    <div class="field"><label>Username</label><input type="text" id="adminUser" placeholder="admin"></div>
+    <div class="field"><label>Password</label><input type="password" id="adminPass" placeholder="••••••"></div>
+    <button class="btn btn-primary" onclick="adminLogin()">🔐 Admin Login</button>
+    <button class="btn btn-secondary" onclick="switchLoginMode('parent')" style="margin-top:8px;">👨‍👩‍👧 Parent Login</button>
+  </div>
+
+  <!-- Parent Login -->
+  <div id="parent-login" style="width:100%;max-width:360px;display:none;">
+    <div class="field"><label>Contact Number</label><input type="tel" id="parentContact" placeholder="9876543210" maxlength="10"></div>
+    <div class="field"><label>Password</label><input type="password" id="parentPass" placeholder="••••••"></div>
+    <button class="btn btn-primary" onclick="parentLogin()">👨‍👩‍👧 Parent Login</button>
+    <button class="btn btn-secondary" onclick="switchLoginMode('admin')" style="margin-top:8px;">🔐 Admin Login</button>
+  </div>
+
+  <div id="login-error" style="color:var(--accent);font-size:13px;margin-top:12px;display:none;">❌ Contact किंवा Password चुकीचा</div>
+  <div id="login-loading" style="color:var(--muted);font-size:13px;margin-top:12px;display:none;">⏳ Checking...</div>
+</div>
+
+<!-- ===== PARENT VIEW ===== -->
+<div id="parent-view" style="display:none;min-height:100vh;background:var(--bg);padding-bottom:80px;">
+
+  <!-- Parent Header -->
+  <div class="header">
+    <div class="header-left">
+      <h1>⚡ Sankalp Classes</h1>
+      <p id="parent-welcome">नमस्कार!</p>
+    </div>
+    <button onclick="parentLogout()" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--muted);font-family:Baloo 2,sans-serif;font-size:12px;cursor:pointer;">Logout</button>
+  </div>
+
+  <!-- Students List -->
+  <div id="parent-students-list" style="padding:14px;">
+    <!-- Notice Board -->
+    <div id="parent-notice" style="display:none;background:rgba(245,166,35,0.1);border:1px solid var(--accent2);border-radius:12px;padding:12px 14px;margin-bottom:14px;">
+      <div style="font-size:12px;font-weight:700;color:var(--accent2);margin-bottom:6px;">📢 Notice</div>
+      <div id="parent-notice-text" style="font-size:13px;color:var(--text);"></div>
+    </div>
+    <div class="sec-title"><span>👨‍👩‍👧</span> विद्यार्थी</div>
+    <div id="parent-kids-list"></div>
+  </div>
+
+  <!-- Student Detail View -->
+  <div id="parent-detail" style="display:none;padding:14px;">
+    <!-- Back button -->
+    <button onclick="showParentStudentsList()" style="background:none;border:none;color:var(--accent);font-family:Baloo 2,sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:12px;">← मागे</button>
+
+    <div style="font-size:20px;font-weight:800;" id="pd-name">—</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:14px;" id="pd-info">—</div>
+
+    <!-- 6 Sub-tabs -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:16px;">
+      <button class="act-tab active" id="ptab-fee"        onclick="switchParentTab('fee')">💰 Fee</button>
+      <button class="act-tab"        id="ptab-attendance" onclick="switchParentTab('attendance')">📋 Attendance</button>
+      <button class="act-tab"        id="ptab-homework"   onclick="switchParentTab('homework')">📝 Homework</button>
+      <button class="act-tab"        id="ptab-worksheet"  onclick="switchParentTab('worksheet')">📄 Worksheet</button>
+      <button class="act-tab"        id="ptab-test"       onclick="switchParentTab('test')">✏️ Test</button>
+      <button class="act-tab"        id="ptab-report"     onclick="switchParentTab('report')">📊 Report</button>
+    </div>
+
+    <!-- Loading -->
+    <div id="pd-loading" style="text-align:center;padding:30px;color:var(--muted);">
+      <span style="font-size:28px;animation:spin 1s linear infinite;display:block;margin-bottom:8px;">⏳</span>Data load होत आहे...
+    </div>
+
+    <!-- FEE TAB -->
+    <div id="pd-fee" style="display:none;">
+      <div class="summary-grid">
+        <div class="sum-card blue"><div class="label">Final Fee</div><div class="value" id="pd-fee-total">₹0</div></div>
+        <div class="sum-card green"><div class="label">Paid</div><div class="value" id="pd-fee-paid">₹0</div></div>
+        <div class="sum-card red" style="grid-column:span 2"><div class="label">Balance</div><div class="value" id="pd-fee-balance">₹0</div></div>
+      </div>
+      <div class="sec-title"><span>💰</span> Payment History</div>
+      <div id="pd-fee-history"></div>
+    </div>
+
+    <!-- ATTENDANCE TAB -->
+    <div id="pd-attendance" style="display:none;">
+      <!-- Month Filter -->
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <button class="filter-chip active" id="att-filter-month" onclick="filterAttendance('month',this)">या महिन्यात</button>
+        <button class="filter-chip" id="att-filter-prev" onclick="filterAttendance('prev',this)">मागील महिना</button>
+        <button class="filter-chip" id="att-filter-all" onclick="filterAttendance('all',this)">सर्व</button>
+      </div>
+      <!-- Summary -->
+      <div class="detail-card" style="margin-bottom:12px;">
+        <div class="detail-card-body">
+          <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px;">
+            <span>✅ Present: <strong id="pd-att-present" style="color:var(--green)">0</strong></span>
+            <span>❌ Absent: <strong id="pd-att-absent" style="color:var(--accent)">0</strong></span>
+            <span>📊 <strong id="pd-att-pct" style="color:var(--blue)">0%</strong></span>
+          </div>
+          <div class="progress-wrap"><div class="progress-fill" id="pd-att-bar" style="width:0%"></div></div>
+        </div>
+      </div>
+      <!-- Daily list -->
+      <div id="pd-att-list"></div>
+    </div>
+
+    <!-- HOMEWORK TAB -->
+    <div id="pd-homework" style="display:none;">
+      <div class="detail-card" style="margin-bottom:12px;">
+        <div class="detail-card-body">
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;">
+            <span>✅ <strong id="pd-hw-done" style="color:var(--green)">0</strong></span>
+            <span>⏰ <strong id="pd-hw-late" style="color:var(--accent2)">0</strong></span>
+            <span>❌ <strong id="pd-hw-nd" style="color:var(--accent)">0</strong></span>
+            <span>📊 <strong id="pd-hw-pct" style="color:var(--blue)">0%</strong></span>
+          </div>
+          <div class="progress-wrap"><div class="progress-fill" id="pd-hw-bar" style="width:0%;background:var(--accent2)"></div></div>
+        </div>
+      </div>
+      <div id="pd-hw-list"></div>
+    </div>
+
+    <!-- WORKSHEET TAB -->
+    <div id="pd-worksheet" style="display:none;">
+      <div class="detail-card" style="margin-bottom:12px;">
+        <div class="detail-card-body">
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;">
+            <span>✅ <strong id="pd-ws-done" style="color:var(--green)">0</strong></span>
+            <span>⏰ <strong id="pd-ws-late" style="color:var(--accent2)">0</strong></span>
+            <span>❌ <strong id="pd-ws-nd" style="color:var(--accent)">0</strong></span>
+            <span>📊 <strong id="pd-ws-pct" style="color:var(--blue)">0%</strong></span>
+          </div>
+          <div class="progress-wrap"><div class="progress-fill" id="pd-ws-bar" style="width:0%;background:var(--accent2)"></div></div>
+        </div>
+      </div>
+      <div id="pd-ws-list"></div>
+    </div>
+
+    <!-- TEST TAB -->
+    <div id="pd-test" style="display:none;">
+      <!-- Appeared summary -->
+      <div class="detail-card" style="margin-bottom:8px;">
+        <div class="detail-card-body">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">उपस्थिती</div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;">
+            <span>✅ Appeared: <strong id="pd-test-appeared" style="color:var(--green)">0</strong></span>
+            <span>❌ Absent: <strong id="pd-test-absent" style="color:var(--accent)">0</strong></span>
+            <span>📊 <strong id="pd-test-att-pct" style="color:var(--blue)">0%</strong></span>
+          </div>
+          <div class="progress-wrap"><div class="progress-fill" id="pd-test-att-bar" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div class="detail-card" style="margin-bottom:12px;">
+        <div class="detail-card-body">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Average Marks</div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;">
+            <span>📊 Average: <strong id="pd-test-avg-pct" style="color:var(--blue)">0%</strong></span>
+          </div>
+          <div class="progress-wrap"><div class="progress-fill" id="pd-test-avg-bar" style="width:0%;background:var(--accent2)"></div></div>
+        </div>
+      </div>
+      <div id="pd-test-list"></div>
+    </div>
+
+    <!-- REPORT TAB -->
+    <div id="pd-report" style="display:none;">
+      <div style="background:var(--card);border:2px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:12px;">
+        <div style="text-align:center;margin-bottom:16px;">
+          <div style="font-size:16px;font-weight:800;color:var(--accent);">⚡ Sankalp Classes</div>
+          <div style="font-size:12px;color:var(--muted);">Monthly Progress Report</div>
+          <div style="font-size:18px;font-weight:800;margin-top:8px;" id="rpt-name">—</div>
+          <div style="font-size:13px;color:var(--muted);" id="rpt-info">—</div>
+        </div>
+        <div style="display:grid;gap:10px;">
+          <div class="detail-card">
+            <div class="detail-card-body">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <span style="font-size:14px;font-weight:700;">📋 Attendance</span>
+                <span id="rpt-att-pct" style="font-size:18px;font-weight:800;color:var(--green);">0%</span>
+              </div>
+              <div class="progress-wrap"><div class="progress-fill" id="rpt-att-bar" style="width:0%"></div></div>
+            </div>
+          </div>
+          <div class="detail-card">
+            <div class="detail-card-body">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <span style="font-size:14px;font-weight:700;">📝 Homework</span>
+                <span id="rpt-hw-pct" style="font-size:18px;font-weight:800;color:var(--accent2);">0%</span>
+              </div>
+              <div class="progress-wrap"><div class="progress-fill" id="rpt-hw-bar" style="width:0%;background:var(--accent2)"></div></div>
+            </div>
+          </div>
+          <div class="detail-card">
+            <div class="detail-card-body">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <span style="font-size:14px;font-weight:700;">📄 Worksheet</span>
+                <span id="rpt-ws-pct" style="font-size:18px;font-weight:800;color:var(--accent2);">0%</span>
+              </div>
+              <div class="progress-wrap"><div class="progress-fill" id="rpt-ws-bar" style="width:0%;background:var(--accent2)"></div></div>
+            </div>
+          </div>
+          <div class="detail-card">
+            <div class="detail-card-body">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <span style="font-size:14px;font-weight:700;">✏️ Tests</span>
+                <span id="rpt-test-pct" style="font-size:18px;font-weight:800;color:var(--blue);">0%</span>
+              </div>
+              <div class="progress-wrap"><div class="progress-fill" id="rpt-test-bar" style="width:0%;background:var(--blue)"></div></div>
+            </div>
+          </div>
+          <div class="detail-card">
+            <div class="detail-card-body" style="text-align:center;">
+              <div style="font-size:13px;color:var(--muted);margin-bottom:4px;">Overall</div>
+              <div id="rpt-overall" style="font-size:22px;font-weight:800;">🟢 Good</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /parent-detail -->
+</div><!-- /parent-view -->
 <div class="header">
   <div class="header-left">
     <h1>⚡ Sankalp Classes</h1>
@@ -872,6 +1093,70 @@
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbznCMImMCifV8RBAgavb2F6M9ya-wB-9QlFVhBwn3M42nMM_a6EMlGP1xKh-RiynJ5ALg/exec';
 
+// ===== LOGIN =====
+const ADMIN_USER = 'admin';
+const ADMIN_PASS = 'sankalp@2024';
+let currentRole    = '';
+let parentStudents = [];
+
+function switchLoginMode(mode) {
+  document.getElementById('admin-login').style.display  = mode === 'admin'  ? 'block' : 'none';
+  document.getElementById('parent-login').style.display = mode === 'parent' ? 'block' : 'none';
+  document.getElementById('login-error').style.display   = 'none';
+}
+
+function adminLogin() {
+  const user = document.getElementById('adminUser').value.trim();
+  const pass = document.getElementById('adminPass').value.trim();
+  if (user === ADMIN_USER && pass === ADMIN_PASS) {
+    currentRole = 'admin';
+    document.getElementById('login-page').style.display = 'none';
+    loadData();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+
+function parentLogin() {
+  const contact = document.getElementById('parentContact').value.trim();
+  const pass    = document.getElementById('parentPass').value.trim();
+  if (!contact || !pass) { alert('Contact आणि Password टाका'); return; }
+
+  document.getElementById('login-loading').style.display = 'block';
+  document.getElementById('login-error').style.display   = 'none';
+
+  const cbName = 'loginCb_' + Date.now();
+  const script = document.createElement('script');
+  let done = false;
+
+  const timer = setTimeout(() => {
+    if (done) return; done = true; cleanup();
+    document.getElementById('login-loading').style.display = 'none';
+    document.getElementById('login-error').style.display   = 'block';
+  }, 15000);
+
+  function cleanup() {
+    clearTimeout(timer); delete window[cbName];
+    if (script.parentNode) script.parentNode.removeChild(script);
+  }
+
+  window[cbName] = function(data) {
+    if (done) return; done = true; cleanup();
+    document.getElementById('login-loading').style.display = 'none';
+    if (data.students && data.students.length > 0) {
+      currentRole    = 'parent';
+      parentStudents = data.students;
+      document.getElementById('login-page').style.display = 'none';
+      showParentDashboard();
+    } else {
+      document.getElementById('login-error').style.display = 'block';
+    }
+  };
+  script.onerror = () => {};
+  script.src = SCRIPT_URL + '?action=login&contact=' + contact + '&password=' + encodeURIComponent(pass) + '&callback=' + cbName;
+  document.head.appendChild(script);
+}
+
 // ===== DASHBOARD STATE =====
 let allStudents = [];
 let allPayments = [];
@@ -880,6 +1165,7 @@ let currentFilter = 'all';
 
 // ===== LOAD DATA via JSONP (CORS bypass) =====
 function loadData() {
+  if (currentRole !== 'admin') return;
   document.getElementById('dash-loading').style.display = 'block';
   document.getElementById('dash-content').style.display = 'none';
   document.getElementById('dash-loading').innerHTML = '<span class="spin">⏳</span>Sheet मधून data load होत आहे...';
@@ -1709,14 +1995,287 @@ async function saveAttendance() {
 document.getElementById('admDate').value = new Date().toISOString().split('T')[0];
 document.getElementById('payDate').value = new Date().toISOString().split('T')[0];
 
-// Dashboard data + Fee Master दोन्ही एकत्र load करा
-loadData();
+// loadData login नंतर call होईल
 loadFeeMaster();
 const todayDate = new Date().toISOString().split('T')[0];
 document.getElementById('attDate').value  = todayDate;
 document.getElementById('hwDate').value   = todayDate;
 document.getElementById('wsDate').value   = todayDate;
 document.getElementById('testDate').value = todayDate;
+
+// ================================================================
+// PARENT VIEW
+// ================================================================
+let parentData = {}; // current student data
+let attFilter  = 'month';
+
+function showParentDashboard() {
+  document.getElementById('parent-view').style.display = 'block';
+  document.querySelector('.header').style.display      = 'none';
+  document.querySelector('.bottom-nav').style.display  = 'none';
+  document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+  document.getElementById('parent-welcome').textContent = 'नमस्कार!';
+  renderParentKids();
+}
+
+function renderParentKids() {
+  document.getElementById('parent-students-list').style.display = 'block';
+  document.getElementById('parent-detail').style.display        = 'none';
+  const list = document.getElementById('parent-kids-list');
+  list.innerHTML = parentStudents.map(st => `
+    <div class="student-card" onclick="openParentStudent('${st.rollNo}','${st.name}','${st.cls}')">
+      <div class="student-header">
+        <div>
+          <div class="student-name">${st.name}</div>
+          <div class="student-roll">${st.rollNo} • Class ${st.cls}</div>
+        </div>
+        <div style="font-size:20px;">→</div>
+      </div>
+    </div>`).join('');
+}
+
+function showParentStudentsList() {
+  document.getElementById('parent-students-list').style.display = 'block';
+  document.getElementById('parent-detail').style.display        = 'none';
+}
+
+function openParentStudent(rollNo, name, cls) {
+  document.getElementById('parent-students-list').style.display = 'none';
+  document.getElementById('parent-detail').style.display        = 'block';
+  document.getElementById('pd-name').textContent = name;
+  document.getElementById('pd-info').textContent = rollNo + ' • Class ' + cls;
+  document.getElementById('pd-loading').style.display = 'block';
+  ['fee','attendance','homework','worksheet','test','report'].forEach(t =>
+    document.getElementById('pd-' + t).style.display = 'none');
+  switchParentTab('fee');
+
+  // JSONP fetch
+  const cbName = 'pdCb_' + Date.now();
+  const script = document.createElement('script');
+  let done = false;
+  const timer = setTimeout(() => {
+    if (done) return; done = true; cleanup();
+    document.getElementById('pd-loading').innerHTML = '❌ Data load नाही झाला';
+  }, 15000);
+
+  function cleanup() {
+    clearTimeout(timer); delete window[cbName];
+    if (script.parentNode) script.parentNode.removeChild(script);
+  }
+
+  window[cbName] = function(data) {
+    if (done) return; done = true; cleanup();
+    parentData = data;
+    document.getElementById('pd-loading').style.display = 'none';
+    renderParentFee();
+    renderParentAttendance('month');
+    renderParentHomework();
+    renderParentWorksheet();
+    renderParentTest();
+    renderParentReport();
+    switchParentTab('fee');
+  };
+  script.onerror = () => {};
+  script.src = SCRIPT_URL + '?action=parentData&rollNo=' + rollNo + '&callback=' + cbName;
+  document.head.appendChild(script);
+}
+
+function switchParentTab(tab) {
+  ['fee','attendance','homework','worksheet','test','report'].forEach(t => {
+    document.getElementById('pd-' + t).style.display        = t === tab ? 'block' : 'none';
+    document.getElementById('ptab-' + t).classList.toggle('active', t === tab);
+  });
+}
+
+function parentLogout() {
+  currentRole = ''; parentStudents = []; parentData = {};
+  document.getElementById('parent-view').style.display  = 'none';
+  document.getElementById('login-page').style.display   = 'flex';
+  document.getElementById('parentContact').value = '';
+  document.getElementById('parentPass').value    = '';
+  document.getElementById('login-error').style.display  = 'none';
+}
+
+// ===== FEE =====
+function renderParentFee() {
+  const { student, payments } = parentData;
+  const paid    = (payments || []).reduce((s, p) => s + (p.amount || 0), 0);
+  const balance = (student?.finalFee || 0) - paid;
+  document.getElementById('pd-fee-total').textContent   = '₹' + fmt(student?.finalFee || 0);
+  document.getElementById('pd-fee-paid').textContent    = '₹' + fmt(paid);
+  document.getElementById('pd-fee-balance').textContent = '₹' + fmt(balance);
+  const hist = document.getElementById('pd-fee-history');
+  if (!payments || payments.length === 0) { hist.innerHTML = '<div class="empty">अजून payment नाही</div>'; return; }
+  hist.innerHTML = [...payments].reverse().map(p => `
+    <div class="payment-row">
+      <div><div class="payment-amount">₹${fmt(p.amount)}</div>
+      <div class="payment-date">${String(p.date).substring(0,10)}${p.note ? ' • '+p.note : ''}</div></div>
+    </div>`).join('');
+}
+
+// ===== ATTENDANCE =====
+function filterAttendance(filter, el) {
+  attFilter = filter;
+  document.querySelectorAll('#pd-attendance .filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderParentAttendance(filter);
+}
+
+function renderParentAttendance(filter) {
+  let records = parentData.attendance || [];
+  const now   = new Date();
+  if (filter === 'month') {
+    records = records.filter(r => {
+      const d = new Date(r.date);
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    });
+  } else if (filter === 'prev') {
+    const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    records = records.filter(r => {
+      const d = new Date(r.date);
+      return d.getMonth() === prev.getMonth() && d.getFullYear() === prev.getFullYear();
+    });
+  }
+  records = [...records].sort((a,b) => new Date(b.date) - new Date(a.date));
+  const present = records.filter(r => r.status === 'Present').length;
+  const absent  = records.length - present;
+  const pct     = records.length > 0 ? Math.round((present / records.length) * 100) : 0;
+  document.getElementById('pd-att-present').textContent = present;
+  document.getElementById('pd-att-absent').textContent  = absent;
+  document.getElementById('pd-att-pct').textContent     = pct + '%';
+  document.getElementById('pd-att-bar').style.width     = pct + '%';
+  document.getElementById('pd-att-list').innerHTML = records.map(r => `
+    <div class="detail-card" style="margin-bottom:8px;">
+      <div class="detail-card-body">
+        <div style="display:flex;justify-content:space-between;font-size:14px;">
+          <span>${String(r.date).substring(0,10)}</span>
+          <span style="color:${r.status==='Present'?'var(--green)':'var(--accent)'};font-weight:700;">
+            ${r.status === 'Present' ? '✅ Present' : '❌ Absent'}
+          </span>
+        </div>
+      </div>
+    </div>`).join('') || '<div class="empty">या period मध्ये record नाही</div>';
+}
+
+// ===== HOMEWORK =====
+function renderParentHomework() {
+  const records = [...(parentData.homework || [])].sort((a,b) => new Date(b.date) - new Date(a.date));
+  const done    = records.filter(r => r.status === 'Done').length;
+  const late    = records.filter(r => r.status === 'Late').length;
+  const nd      = records.filter(r => r.status === 'Not Done').length;
+  const total   = records.length;
+  const pct     = total > 0 ? Math.round(((done + late) / total) * 100) : 0;
+  document.getElementById('pd-hw-done').textContent = done;
+  document.getElementById('pd-hw-late').textContent = late;
+  document.getElementById('pd-hw-nd').textContent   = nd;
+  document.getElementById('pd-hw-pct').textContent  = pct + '%';
+  document.getElementById('pd-hw-bar').style.width  = pct + '%';
+  document.getElementById('pd-hw-list').innerHTML = records.map(r => `
+    <div class="detail-card" style="margin-bottom:8px;">
+      <div class="detail-card-body">
+        <div style="display:flex;justify-content:space-between;font-size:13px;">
+          <div><div style="font-weight:700;">${r.subject} — ${r.topic}</div>
+          <div style="color:var(--muted);font-size:11px;">${String(r.date).substring(0,10)}</div></div>
+          <span style="font-weight:700;color:${r.status==='Done'?'var(--green)':r.status==='Late'?'var(--accent2)':'var(--accent)'}">
+            ${r.status==='Done'?'✅':r.status==='Late'?'⏰':'❌'} ${r.status}
+          </span>
+        </div>
+      </div>
+    </div>`).join('') || '<div class="empty">अजून record नाही</div>';
+}
+
+// ===== WORKSHEET =====
+function renderParentWorksheet() {
+  const records = [...(parentData.worksheet || [])].sort((a,b) => new Date(b.date) - new Date(a.date));
+  const done    = records.filter(r => r.status === 'Done').length;
+  const late    = records.filter(r => r.status === 'Late').length;
+  const nd      = records.filter(r => r.status === 'Not Done').length;
+  const total   = records.length;
+  const pct     = total > 0 ? Math.round(((done + late) / total) * 100) : 0;
+  document.getElementById('pd-ws-done').textContent = done;
+  document.getElementById('pd-ws-late').textContent = late;
+  document.getElementById('pd-ws-nd').textContent   = nd;
+  document.getElementById('pd-ws-pct').textContent  = pct + '%';
+  document.getElementById('pd-ws-bar').style.width  = pct + '%';
+  document.getElementById('pd-ws-list').innerHTML = records.map(r => `
+    <div class="detail-card" style="margin-bottom:8px;">
+      <div class="detail-card-body">
+        <div style="display:flex;justify-content:space-between;font-size:13px;">
+          <div><div style="font-weight:700;">${r.subject} — ${r.topic}</div>
+          <div style="color:var(--muted);font-size:11px;">${String(r.date).substring(0,10)}</div></div>
+          <span style="font-weight:700;color:${r.status==='Done'?'var(--green)':r.status==='Late'?'var(--accent2)':'var(--accent)'}">
+            ${r.status==='Done'?'✅':r.status==='Late'?'⏰':'❌'} ${r.status}
+          </span>
+        </div>
+      </div>
+    </div>`).join('') || '<div class="empty">अजून record नाही</div>';
+}
+
+// ===== TEST =====
+function renderParentTest() {
+  const records  = [...(parentData.tests || [])].sort((a,b) => new Date(b.date) - new Date(a.date));
+  const appeared = records.filter(r => r.status === 'Present').length;
+  const absent   = records.length - appeared;
+  const attPct   = records.length > 0 ? Math.round((appeared / records.length) * 100) : 0;
+  const withMarks = records.filter(r => r.status === 'Present' && r.marks !== '' && r.outOf > 0);
+  const avgPct    = withMarks.length > 0
+    ? Math.round(withMarks.reduce((s,r) => s + (Number(r.marks)/Number(r.outOf)*100), 0) / withMarks.length)
+    : 0;
+  document.getElementById('pd-test-appeared').textContent  = appeared;
+  document.getElementById('pd-test-absent').textContent    = absent;
+  document.getElementById('pd-test-att-pct').textContent   = attPct + '%';
+  document.getElementById('pd-test-att-bar').style.width   = attPct + '%';
+  document.getElementById('pd-test-avg-pct').textContent   = avgPct + '%';
+  document.getElementById('pd-test-avg-bar').style.width   = avgPct + '%';
+  document.getElementById('pd-test-list').innerHTML = records.map(r => `
+    <div class="detail-card" style="margin-bottom:8px;">
+      <div class="detail-card-body">
+        <div style="display:flex;justify-content:space-between;font-size:13px;">
+          <div><div style="font-weight:700;">${r.subject} — ${r.topic}</div>
+          <div style="color:var(--muted);font-size:11px;">${String(r.date).substring(0,10)}</div></div>
+          <div style="text-align:right;">
+            <div style="font-weight:700;color:${r.status==='Present'?'var(--green)':'var(--accent)'}">
+              ${r.status==='Present'?'✅':'❌'}
+            </div>
+            <div style="font-size:13px;font-weight:700;color:var(--accent2);">
+              ${r.status==='Present' && r.marks!=='' ? r.marks+'/'+r.outOf : '—'}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`).join('') || '<div class="empty">अजून test नाही</div>';
+}
+
+// ===== REPORT =====
+function renderParentReport() {
+  const st = parentData.student || {};
+  document.getElementById('rpt-name').textContent = st.name || '—';
+  document.getElementById('rpt-info').textContent = (st.rollNo || '') + ' • Class ' + (st.cls || '');
+
+  const att  = parentData.attendance || [];
+  const hw   = parentData.homework   || [];
+  const ws   = parentData.worksheet  || [];
+  const tests= parentData.tests      || [];
+
+  const attPct  = att.length  > 0 ? Math.round((att.filter(r=>r.status==='Present').length / att.length) * 100) : 0;
+  const hwPct   = hw.length   > 0 ? Math.round(((hw.filter(r=>r.status==='Done').length + hw.filter(r=>r.status==='Late').length) / hw.length) * 100) : 0;
+  const wsPct   = ws.length   > 0 ? Math.round(((ws.filter(r=>r.status==='Done').length + ws.filter(r=>r.status==='Late').length) / ws.length) * 100) : 0;
+  const withM   = tests.filter(r=>r.status==='Present'&&r.marks!==''&&r.outOf>0);
+  const testPct = withM.length > 0 ? Math.round(withM.reduce((s,r)=>s+(Number(r.marks)/Number(r.outOf)*100),0)/withM.length) : 0;
+  const overall = Math.round((attPct + hwPct + wsPct + testPct) / 4);
+
+  document.getElementById('rpt-att-pct').textContent  = attPct  + '%';
+  document.getElementById('rpt-hw-pct').textContent   = hwPct   + '%';
+  document.getElementById('rpt-ws-pct').textContent   = wsPct   + '%';
+  document.getElementById('rpt-test-pct').textContent = testPct + '%';
+  document.getElementById('rpt-att-bar').style.width  = attPct  + '%';
+  document.getElementById('rpt-hw-bar').style.width   = hwPct   + '%';
+  document.getElementById('rpt-ws-bar').style.width   = wsPct   + '%';
+  document.getElementById('rpt-test-bar').style.width = testPct + '%';
+  document.getElementById('rpt-overall').textContent  =
+    overall >= 80 ? '🟢 Excellent' : overall >= 60 ? '🟡 Good' : '🔴 Needs Effort';
+}
+
 </script>
 </body>
 </html>
