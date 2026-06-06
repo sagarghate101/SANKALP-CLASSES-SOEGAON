@@ -1624,12 +1624,28 @@ async function submitAdmission() {
   };
 
   const params = new URLSearchParams({ data: JSON.stringify(payload) });
-  try {
-    await fetch(SCRIPT_URL + '?' + params.toString(), { mode: 'no-cors' });
-    const admCount = parseInt(localStorage.getItem('skl_count') || '0') + 1;
-    localStorage.setItem('skl_count', admCount);
-    const rollNo = 'SKL-' + String(admCount).padStart(3, '0');
-    document.getElementById('successRoll').textContent = rollNo;
+
+  const cbName = 'admCb_' + Date.now();
+  const script = document.createElement('script');
+  let done = false;
+
+  const timer = setTimeout(() => {
+    if (done) return; done = true; cleanup();
+    // Timeout — Sheet मध्ये save झाले असेल पण Roll No मिळाला नाही
+    document.getElementById('successRoll').textContent = '(Sheet बघा)';
+    document.getElementById('successName').textContent = name;
+    admSetStep(4);
+    btn.textContent = '✅ Admission Save करा'; btn.disabled = false;
+  }, 15000);
+
+  function cleanup() {
+    clearTimeout(timer); delete window[cbName];
+    if (script.parentNode) script.parentNode.removeChild(script);
+  }
+
+  window[cbName] = function(data) {
+    if (done) return; done = true; cleanup();
+    document.getElementById('successRoll').textContent = data.rollNo || '(Sheet बघा)';
     document.getElementById('successName').textContent = name;
     document.getElementById('successSummary').innerHTML = `
       <div class="confirm-card" style="margin-top:16px; text-align:left">
@@ -1640,11 +1656,12 @@ async function submitAdmission() {
         </div>
       </div>`;
     admSetStep(4);
-  } catch(e) {
-    alert('❌ Internet नाही किंवा Script URL चुकीचा.');
-    btn.textContent = '✅ Admission Save करा';
-    btn.disabled = false;
-  }
+    btn.textContent = '✅ Admission Save करा'; btn.disabled = false;
+  };
+
+  script.onerror = () => {};
+  script.src = SCRIPT_URL + '?' + params.toString() + '&callback=' + cbName;
+  document.head.appendChild(script);
 }
 
 function admSetStep(n) {
@@ -2042,8 +2059,8 @@ function showParentStudentsList() {
 function openParentStudent(rollNo, name, cls) {
   document.getElementById('parent-students-list').style.display = 'none';
   document.getElementById('parent-detail').style.display        = 'block';
-  document.getElementById('pd-name').textContent = name;
-  document.getElementById('pd-info').textContent = rollNo + ' • Class ' + cls;
+    document.getElementById('pd-name').textContent = name;
+    document.getElementById('pd-info').textContent = rollNo + ' • Class ' + cls;
   document.getElementById('pd-loading').style.display = 'block';
   ['fee','attendance','homework','worksheet','test','report'].forEach(t =>
     document.getElementById('pd-' + t).style.display = 'none');
@@ -2067,6 +2084,12 @@ function openParentStudent(rollNo, name, cls) {
     if (done) return; done = true; cleanup();
     parentData = data;
     document.getElementById('pd-loading').style.display = 'none';
+    // Medium + Subjects update
+    const st = data.student || {};
+    const infoText = rollNo + ' • Class ' + cls
+      + (st.medium && st.medium !== 'NA' ? ' • ' + st.medium : '')
+      + (st.subjects ? ' | ' + st.subjects : '');
+    document.getElementById('pd-info').textContent = infoText;
     renderParentFee();
     renderParentAttendance('month');
     renderParentHomework();
