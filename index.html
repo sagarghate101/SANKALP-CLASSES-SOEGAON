@@ -3,932 +3,605 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="theme-color" content="#1a1a2e">
+<meta name="theme-color" content="#0f0f1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Sankalp Classes — Admission</title>
+<title>Sankalp Classes — Soegaon</title>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0f0f1a;
-    --surface: #1a1a2e;
-    --card: #16213e;
-    --accent: #e94560;
-    --accent2: #f5a623;
-    --green: #0fcf7a;
-    --text: #e8e8f0;
-    --muted: #8888aa;
-    --border: #2a2a4a;
-    --radius: 16px;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Baloo 2', 'Noto Sans Devanagari', sans-serif;
-    min-height: 100vh;
-    padding-bottom: 40px;
-  }
-
-  /* Header */
-  .header {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-    padding: 20px 20px 16px;
-    border-bottom: 2px solid var(--accent);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .header h1 {
-    font-size: 22px;
-    font-weight: 800;
-    color: var(--accent);
-    letter-spacing: -0.5px;
-  }
-  .header p { font-size: 13px; color: var(--muted); margin-top: 2px; }
-
-  /* Progress Steps */
-  .steps {
-    display: flex;
-    align-items: center;
-    padding: 16px 20px;
-    gap: 0;
-  }
-  .step {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex: 1;
-    position: relative;
-  }
-  .step-circle {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 700;
-    border: 2px solid var(--border);
-    background: var(--surface);
-    color: var(--muted);
-    transition: all 0.3s;
-    position: relative; z-index: 1;
-  }
-  .step.active .step-circle {
-    border-color: var(--accent);
-    background: var(--accent);
-    color: white;
-  }
-  .step.done .step-circle {
-    border-color: var(--green);
-    background: var(--green);
-    color: #0f0f1a;
-  }
-  .step-label {
-    font-size: 10px;
-    color: var(--muted);
-    margin-top: 4px;
-    text-align: center;
-    font-weight: 600;
-  }
-  .step.active .step-label { color: var(--accent); }
-  .step.done .step-label { color: var(--green); }
-  .step-line {
-    height: 2px;
-    background: var(--border);
-    flex: 1;
-    margin-bottom: 18px;
-    transition: all 0.3s;
-  }
-  .step-line.done { background: var(--green); }
-
-  /* Content */
-  .content { padding: 0 16px; }
-
-  .section-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--text);
-    margin: 20px 0 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .section-title span {
-    background: var(--accent);
-    color: white;
-    width: 28px; height: 28px;
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px;
-  }
-
-  /* Form Fields */
-  .field { margin-bottom: 14px; }
-  .field label {
-    display: block;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--muted);
-    margin-bottom: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  .field input, .field select {
-    width: 100%;
-    background: var(--card);
-    border: 1.5px solid var(--border);
-    border-radius: 12px;
-    padding: 13px 16px;
-    color: var(--text);
-    font-family: 'Baloo 2', sans-serif;
-    font-size: 15px;
-    outline: none;
-    transition: border-color 0.2s;
-    -webkit-appearance: none;
-  }
-  .field input:focus, .field select:focus {
-    border-color: var(--accent);
-  }
-  .field select option { background: var(--card); }
-
-  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-  /* Subject Cards */
-  .subjects-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
-  .subject-card {
-    background: var(--card);
-    border: 2px solid var(--border);
-    border-radius: 14px;
-    padding: 14px 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-    user-select: none;
-  }
-  .subject-card.selected {
-    border-color: var(--accent);
-    background: rgba(233,69,96,0.1);
-  }
-  .subject-card .sub-name {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--text);
-  }
-  .subject-card .sub-fee {
-    font-size: 13px;
-    color: var(--accent2);
-    font-weight: 600;
-    margin-top: 4px;
-  }
-  .subject-card .check {
-    position: absolute;
-    top: 8px; right: 8px;
-    width: 20px; height: 20px;
-    border-radius: 50%;
-    background: var(--accent);
-    display: none;
-    align-items: center; justify-content: center;
-    font-size: 11px;
-    color: white;
-  }
-  .subject-card.selected .check { display: flex; }
-
-  /* Fee Summary */
-  .fee-box {
-    background: var(--card);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px;
-    margin-top: 16px;
-  }
-  .fee-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 14px;
-  }
-  .fee-row:last-child { border-bottom: none; }
-  .fee-row .label { color: var(--muted); }
-  .fee-row .value { font-weight: 700; }
-  .fee-row.total { padding-top: 12px; }
-  .fee-row.total .label { color: var(--text); font-weight: 700; font-size: 16px; }
-  .fee-row.total .value { color: var(--green); font-size: 20px; }
-  .fee-row.original .value { color: var(--accent2); }
-  .fee-row.discount .value { color: var(--accent); }
-
-  /* Adjust Fee */
-  .adjust-section {
-    background: var(--surface);
-    border: 1.5px dashed var(--border);
-    border-radius: var(--radius);
-    padding: 16px;
-    margin-top: 12px;
-  }
-  .adjust-section h3 {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--accent2);
-    margin-bottom: 12px;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .adjust-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-  /* Confirm Card */
-  .confirm-card {
-    background: var(--card);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    margin-bottom: 14px;
-  }
-  .confirm-card-header {
-    background: var(--surface);
-    padding: 10px 16px;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  .confirm-card-body { padding: 14px 16px; }
-  .confirm-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 6px 0;
-    font-size: 14px;
-    border-bottom: 1px solid var(--border);
-  }
-  .confirm-row:last-child { border-bottom: none; }
-  .confirm-row .k { color: var(--muted); }
-  .confirm-row .v { font-weight: 600; text-align: right; max-width: 60%; }
-
-  /* Buttons */
-  .btn {
-    width: 100%;
-    padding: 16px;
-    border-radius: 14px;
-    font-family: 'Baloo 2', sans-serif;
-    font-size: 16px;
-    font-weight: 700;
-    border: none;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: all 0.2s;
-    letter-spacing: 0.3px;
-  }
-  .btn-primary {
-    background: linear-gradient(135deg, var(--accent), #c73652);
-    color: white;
-  }
-  .btn-primary:active { transform: scale(0.98); }
-  .btn-secondary {
-    background: var(--surface);
-    color: var(--muted);
-    border: 1.5px solid var(--border);
-  }
-  .btn-success {
-    background: linear-gradient(135deg, var(--green), #0aad67);
-    color: #0f0f1a;
-  }
-
-  /* Badge */
-  .badge {
-    display: inline-block;
-    background: rgba(233,69,96,0.15);
-    color: var(--accent);
-    border: 1px solid var(--accent);
-    border-radius: 20px;
-    padding: 2px 10px;
-    font-size: 11px;
-    font-weight: 700;
-    margin: 2px;
-  }
-  .badge.green {
-    background: rgba(15,207,122,0.15);
-    color: var(--green);
-    border-color: var(--green);
-  }
-
-  /* Success Screen */
-  .success-screen {
-    text-align: center;
-    padding: 40px 20px;
-  }
-  .success-icon {
-    font-size: 64px;
-    margin-bottom: 16px;
-  }
-  .success-screen h2 {
-    font-size: 24px;
-    font-weight: 800;
-    color: var(--green);
-    margin-bottom: 8px;
-  }
-  .success-screen p { color: var(--muted); font-size: 15px; }
-
-  .roll-display {
-    background: var(--card);
-    border: 2px solid var(--green);
-    border-radius: var(--radius);
-    padding: 20px;
-    margin: 20px 0;
-  }
-  .roll-display .roll-label { font-size: 12px; color: var(--muted); font-weight: 600; }
-  .roll-display .roll-num { font-size: 36px; font-weight: 800; color: var(--accent2); }
-
-  /* Sheet Info */
-  .sheet-info {
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px;
-    margin: 16px 0;
-  }
-  .sheet-info h3 { font-size: 14px; font-weight: 700; color: var(--accent2); margin-bottom: 10px; }
-  .sheet-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  .sheet-table th {
-    background: var(--bg);
-    color: var(--muted);
-    padding: 8px;
-    text-align: left;
-    font-weight: 700;
-    font-size: 11px;
-  }
-  .sheet-table td {
-    padding: 7px 8px;
-    border-bottom: 1px solid var(--border);
-    color: var(--text);
-  }
-  .sheet-table tr:last-child td { border-bottom: none; }
-
-  .hidden { display: none !important; }
-
-  /* Notice box */
-  .notice {
-    background: rgba(245,166,35,0.1);
-    border: 1px solid var(--accent2);
-    border-radius: 10px;
-    padding: 10px 14px;
-    font-size: 13px;
-    color: var(--accent2);
-    margin: 12px 0;
-    display: flex; gap: 8px; align-items: flex-start;
-  }
+:root{--bg:#0f0f1a;--surface:#1a1a2e;--card:#16213e;--accent:#e94560;--accent2:#f5a623;--green:#0fcf7a;--blue:#4d9fff;--text:#e8e8f0;--muted:#8888aa;--border:#2a2a4a;--radius:16px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Baloo 2','Noto Sans Devanagari',sans-serif;min-height:100vh;padding-bottom:72px}
+.header{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);padding:16px 20px 12px;border-bottom:2px solid var(--accent);position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center}
+.header-left h1{font-size:20px;font-weight:800;color:var(--accent)}
+.header-left p{font-size:11px;color:var(--muted);margin-top:1px}
+.header-right{font-size:11px;color:var(--muted);text-align:right}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1.5px solid var(--border);display:flex;z-index:200}
+.nav-btn{flex:1;padding:10px 4px 7px;text-align:center;cursor:pointer;border:none;background:none;color:var(--muted);font-family:'Baloo 2',sans-serif;font-size:10px;font-weight:600;transition:all .2s}
+.nav-btn .icon{font-size:18px;display:block;margin-bottom:2px}
+.nav-btn.active{color:var(--accent)}
+.page{padding:14px;display:none}
+.page.active{display:block}
+.loading{text-align:center;padding:40px 20px;color:var(--muted);font-size:15px}
+.loading .spin{font-size:32px;animation:spin 1s linear infinite;display:block;margin-bottom:10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
+.sum-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px}
+.sum-card .label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase}
+.sum-card .value{font-size:22px;font-weight:800;margin-top:4px}
+.sum-card.green .value{color:var(--green)}.sum-card.orange .value{color:var(--accent2)}.sum-card.red .value{color:var(--accent)}.sum-card.blue .value{color:var(--blue)}
+.sec-title{font-size:15px;font-weight:700;color:var(--text);margin:14px 0 10px;display:flex;align-items:center;gap:8px}
+.sec-title span{background:var(--accent);color:white;width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px}
+.class-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px}
+.class-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.class-name{font-size:16px;font-weight:700}
+.student-count{background:rgba(233,69,96,.15);color:var(--accent);border:1px solid var(--accent);border-radius:20px;padding:2px 10px;font-size:12px;font-weight:700}
+.fee-bars{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.fee-bar-item{text-align:center}
+.fee-bar-label{font-size:10px;color:var(--muted);font-weight:600}
+.fee-bar-value{font-size:13px;font-weight:700;margin-top:2px}
+.fee-bar-value.total{color:var(--blue)}.fee-bar-value.paid{color:var(--green)}.fee-bar-value.balance{color:var(--accent)}
+.progress-wrap{margin-top:10px;background:var(--border);border-radius:10px;height:6px}
+.progress-fill{height:6px;border-radius:10px;background:var(--green);transition:width .5s}
+.search-box{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 16px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;width:100%;outline:none;margin-bottom:12px}
+.search-box:focus{border-color:var(--accent)}
+.student-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:13px 15px;margin-bottom:10px;cursor:pointer;transition:border-color .2s}
+.student-card:active{border-color:var(--accent)}
+.student-header{display:flex;justify-content:space-between;align-items:flex-start}
+.student-name{font-size:15px;font-weight:700}
+.student-roll{font-size:11px;color:var(--accent2);font-weight:600;margin-top:2px}
+.student-class{font-size:12px;color:var(--muted);margin-top:2px}
+.balance-badge{padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700}
+.balance-badge.due{background:rgba(233,69,96,.15);color:var(--accent);border:1px solid var(--accent)}
+.balance-badge.clear{background:rgba(15,207,122,.15);color:var(--green);border:1px solid var(--green)}
+.filter-row{display:flex;gap:8px;margin-bottom:12px;overflow-x:auto;padding-bottom:4px}
+.filter-chip{background:var(--card);border:1.5px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:'Baloo 2',sans-serif}
+.filter-chip.active{border-color:var(--accent);color:var(--accent);background:rgba(233,69,96,.1)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:300;display:none;align-items:flex-end}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-height:90vh;overflow-y:auto;padding:20px 16px 40px;animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
+.modal-title{font-size:18px;font-weight:800;margin-bottom:4px}
+.modal-sub{font-size:13px;color:var(--muted);margin-bottom:14px}
+.detail-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px}
+.detail-card-header{background:var(--bg);padding:8px 14px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.detail-card-body{padding:12px 14px}
+.detail-row{display:flex;justify-content:space-between;padding:6px 0;font-size:14px;border-bottom:1px solid var(--border)}
+.detail-row:last-child{border-bottom:none}
+.detail-row .k{color:var(--muted)}.detail-row .v{font-weight:600;text-align:right}
+.payment-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px}
+.payment-row:last-child{border-bottom:none}
+.payment-amount{color:var(--green);font-weight:700;font-size:15px}
+.payment-date{color:var(--muted);font-size:12px;margin-top:2px}
+.add-payment-section{background:var(--card);border:1.5px dashed var(--accent);border-radius:var(--radius);padding:16px;margin-bottom:12px}
+.add-payment-section h3{font-size:14px;font-weight:700;color:var(--accent2);margin-bottom:12px}
+.pay-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fee-highlight{background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;text-align:center}
+.fh-item .fh-label{font-size:10px;color:var(--muted);font-weight:600}
+.fh-item .fh-value{font-size:16px;font-weight:800;margin-top:3px}
+.field{margin-bottom:13px}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.field input,.field select{width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;-webkit-appearance:none;transition:border-color .2s}
+.field input:focus,.field select:focus{border-color:var(--accent)}
+.field select option{background:var(--card)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn{width:100%;padding:14px;border-radius:13px;font-family:'Baloo 2',sans-serif;font-size:15px;font-weight:700;border:none;cursor:pointer;margin-top:8px;transition:all .2s}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#c73652);color:white}
+.btn-secondary{background:var(--surface);color:var(--muted);border:1.5px solid var(--border)}
+.btn-green{background:linear-gradient(135deg,var(--green),#0aad67);color:#0f0f1a}
+.steps{display:flex;align-items:center;padding:14px 20px;gap:0}
+.step{display:flex;flex-direction:column;align-items:center;flex:1;position:relative}
+.step-circle{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:2px solid var(--border);background:var(--surface);color:var(--muted);transition:all .3s;position:relative;z-index:1}
+.step.active .step-circle{border-color:var(--accent);background:var(--accent);color:white}
+.step.done .step-circle{border-color:var(--green);background:var(--green);color:#0f0f1a}
+.step-label{font-size:10px;color:var(--muted);margin-top:4px;text-align:center;font-weight:600}
+.step.active .step-label{color:var(--accent)}.step.done .step-label{color:var(--green)}
+.step-line{height:2px;background:var(--border);flex:1;margin-bottom:18px;transition:all .3s}
+.step-line.done{background:var(--green)}
+.subjects-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.subject-card{background:var(--card);border:2px solid var(--border);border-radius:14px;padding:14px 12px;cursor:pointer;transition:all .2s;position:relative;user-select:none}
+.subject-card.selected{border-color:var(--accent);background:rgba(233,69,96,.1)}
+.subject-card .sub-name{font-size:14px;font-weight:700;color:var(--text)}
+.subject-card .sub-fee{font-size:13px;color:var(--accent2);font-weight:600;margin-top:4px}
+.subject-card .check{position:absolute;top:8px;right:8px;width:20px;height:20px;border-radius:50%;background:var(--accent);display:none;align-items:center;justify-content:center;font-size:11px;color:white}
+.subject-card.selected .check{display:flex}
+.fee-box{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px;margin-top:16px}
+.fee-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px}
+.fee-row:last-child{border-bottom:none}
+.fee-row .label{color:var(--muted)}.fee-row .value{font-weight:700}
+.fee-row.total .label{color:var(--text);font-weight:700;font-size:16px}.fee-row.total .value{color:var(--green);font-size:20px}
+.fee-row.original .value{color:var(--accent2)}.fee-row.discount .value{color:var(--accent)}
+.adjust-section{background:var(--surface);border:1.5px dashed var(--border);border-radius:var(--radius);padding:16px;margin-top:12px}
+.adjust-section h3{font-size:14px;font-weight:700;color:var(--accent2);margin-bottom:12px}
+.adjust-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.confirm-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.confirm-card-header{background:var(--surface);padding:10px 16px;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.confirm-card-body{padding:14px 16px}
+.confirm-row{display:flex;justify-content:space-between;padding:6px 0;font-size:14px;border-bottom:1px solid var(--border)}
+.confirm-row:last-child{border-bottom:none}
+.confirm-row .k{color:var(--muted)}.confirm-row .v{font-weight:600;text-align:right;max-width:60%}
+.success-screen{text-align:center;padding:30px 20px}
+.success-icon{font-size:64px;margin-bottom:16px}
+.success-screen h2{font-size:24px;font-weight:800;color:var(--green);margin-bottom:8px}
+.success-screen p{color:var(--muted);font-size:15px}
+.roll-display{background:var(--card);border:2px solid var(--green);border-radius:var(--radius);padding:20px;margin:20px 0}
+.roll-display .roll-label{font-size:12px;color:var(--muted);font-weight:600}
+.roll-display .roll-num{font-size:36px;font-weight:800;color:var(--accent2)}
+.att-student-row{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:13px 15px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.act-tab{flex:1;padding:9px 4px;border-radius:10px;border:1.5px solid var(--border);background:var(--card);color:var(--muted);font-family:'Baloo 2',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
+.act-tab.active{border-color:var(--accent);color:var(--accent);background:rgba(233,69,96,.1)}
+.att-toggle{display:flex;border-radius:10px;overflow:hidden;border:1.5px solid var(--border)}
+.att-toggle button{padding:7px 14px;border:none;cursor:pointer;font-family:'Baloo 2',sans-serif;font-size:12px;font-weight:700;background:var(--surface);color:var(--muted);transition:all .2s}
+.att-toggle button.present-active{background:var(--green);color:#0f0f1a}
+.att-toggle button.absent-active{background:var(--accent);color:white}
+.notice{background:rgba(245,166,35,.1);border:1px solid var(--accent2);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--accent2);margin:12px 0;display:flex;gap:8px;align-items:flex-start}
+.section-title{font-size:17px;font-weight:700;color:var(--text);margin:18px 0 13px;display:flex;align-items:center;gap:8px}
+.section-title span{background:var(--accent);color:white;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.empty{text-align:center;padding:30px;color:var(--muted);font-size:14px}
+.hidden{display:none!important}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>⚡ Sankalp Classes</h1>
-  <p>नवीन Admission — Admin Panel</p>
+<!-- LOGIN PAGE -->
+<div id="login-page" style="position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;">
+  <div style="font-size:56px;margin-bottom:8px;">⚡</div>
+  <h1 style="font-size:26px;font-weight:800;color:var(--accent);margin-bottom:4px;">Sankalp Classes</h1>
+  <p style="color:var(--muted);font-size:13px;margin-bottom:32px;">Soegaon</p>
+  <div id="admin-login" style="width:100%;max-width:360px;">
+    <div class="field"><label>Username</label><input type="text" id="adminUser" placeholder="admin"></div>
+    <div class="field"><label>Password</label><input type="password" id="adminPass" placeholder="••••••"></div>
+    <button class="btn btn-primary" onclick="adminLogin()">🔐 Admin Login</button>
+    <button class="btn btn-secondary" onclick="switchLoginMode('parent')" style="margin-top:8px;">👨‍👩‍👧 Parent Login</button>
+  </div>
+  <div id="parent-login" style="width:100%;max-width:360px;display:none;">
+    <div class="field"><label>Contact Number</label><input type="tel" id="parentContact" placeholder="9876543210" maxlength="10"></div>
+    <div class="field"><label>Password</label><input type="password" id="parentPass" placeholder="••••••"></div>
+    <button class="btn btn-primary" onclick="parentLogin()">👨‍👩‍👧 Parent Login</button>
+    <button class="btn btn-secondary" onclick="switchLoginMode('admin')" style="margin-top:8px;">🔐 Admin Login</button>
+  </div>
+  <div id="login-error" style="color:var(--accent);font-size:13px;margin-top:12px;display:none;">❌ Contact किंवा Password चुकीचा</div>
+  <div id="login-loading" style="color:var(--muted);font-size:13px;margin-top:12px;display:none;">⏳ Checking...</div>
 </div>
 
-<!-- Steps -->
-<div class="steps">
-  <div class="step active" id="step1-indicator">
-    <div class="step-circle">1</div>
-    <div class="step-label">Details</div>
+<!-- PARENT VIEW -->
+<div id="parent-view" style="display:none;min-height:100vh;background:var(--bg);padding-bottom:80px;">
+  <div class="header">
+    <div class="header-left"><h1>⚡ Sankalp Classes</h1><p id="parent-welcome">नमस्कार!</p></div>
+    <button onclick="parentLogout()" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--muted);font-family:'Baloo 2',sans-serif;font-size:12px;cursor:pointer;">Logout</button>
   </div>
-  <div class="step-line" id="line1"></div>
-  <div class="step" id="step2-indicator">
-    <div class="step-circle">2</div>
-    <div class="step-label">Fee</div>
+  <div id="parent-students-list" style="padding:14px;">
+    <div class="sec-title"><span>👨‍👩‍👧</span> विद्यार्थी</div>
+    <div id="parent-kids-list"></div>
   </div>
-  <div class="step-line" id="line2"></div>
-  <div class="step" id="step3-indicator">
-    <div class="step-circle">3</div>
-    <div class="step-label">Confirm</div>
-  </div>
-</div>
-
-<div class="content">
-
-<!-- ===== STEP 1: Student Details ===== -->
-<div id="page1">
-  <div class="section-title"><span>1</span> विद्यार्थी माहिती</div>
-
-  <div class="field">
-    <label>विद्यार्थ्याचे पूर्ण नाव *</label>
-    <input type="text" id="studentName" placeholder="उदा. राहुल विठ्ठल पाटील">
-  </div>
-  <div class="field">
-    <label>वडिलांचे / पालकाचे नाव *</label>
-    <input type="text" id="fatherName" placeholder="उदा. विठ्ठल दत्तात्रय पाटील">
-  </div>
-  <div class="field">
-    <label>Contact Number *</label>
-    <input type="tel" id="contact" placeholder="9876543210" maxlength="10">
-  </div>
-  <div class="row">
-    <div class="field">
-      <label>इयत्ता (Class) *</label>
-      <select id="classSelect" onchange="onClassChange()">
-        <option value="">-- निवडा --</option>
-        <option value="1">1st</option>
-        <option value="2">2nd</option>
-        <option value="3">3rd</option>
-        <option value="4">4th</option>
-        <option value="5">5th</option>
-        <option value="6">6th</option>
-        <option value="7">7th</option>
-        <option value="8">8th</option>
-        <option value="9">9th</option>
-        <option value="10">10th</option>
-        <option value="11">11th Science</option>
-        <option value="12">12th Science</option>
-      </select>
+  <div id="parent-detail" style="display:none;padding:14px;">
+    <button onclick="showParentStudentsList()" style="background:none;border:none;color:var(--accent);font-family:'Baloo 2',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:12px;">← मागे</button>
+    <div style="font-size:20px;font-weight:800;" id="pd-name">—</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:14px;" id="pd-info">—</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:16px;">
+      <button class="act-tab active" id="ptab-fee" onclick="switchParentTab('fee')">💰 Fee</button>
+      <button class="act-tab" id="ptab-attendance" onclick="switchParentTab('attendance')">📋 Attendance</button>
+      <button class="act-tab" id="ptab-homework" onclick="switchParentTab('homework')">📝 Homework</button>
+      <button class="act-tab" id="ptab-worksheet" onclick="switchParentTab('worksheet')">📄 Worksheet</button>
+      <button class="act-tab" id="ptab-test" onclick="switchParentTab('test')">✏️ Test</button>
+      <button class="act-tab" id="ptab-report" onclick="switchParentTab('report')">📊 Report</button>
     </div>
-    <div class="field" id="mediumField">
-      <label>माध्यम (Medium)</label>
-      <select id="mediumSelect">
-        <option value="">-- निवडा --</option>
-        <option value="Semi">Semi</option>
-        <option value="Marathi">Marathi</option>
-      </select>
-    </div>
-  </div>
-  <div class="field">
-    <label>Parent Password *</label>
-    <input type="text" id="parentPassword" placeholder="उदा. 1234 (Parent login साठी)">
-  </div>
-  <div class="field">
-    <label>Admission Date</label>
-    <input type="date" id="admDate">
-  </div>
-
-  <button class="btn btn-primary" onclick="goToStep2()">पुढे → Fee निवडा</button>
-</div>
-
-<!-- ===== STEP 2: Subject & Fee ===== -->
-<div id="page2" class="hidden">
-  <div class="section-title"><span>2</span> Subjects & Fee</div>
-
-  <div class="notice">
-    📚 खाली subjects निवडा. Fee automatically calculate होईल.
-  </div>
-
-  <div id="subjectsContainer">
-    <div class="subjects-grid" id="subjectsGrid"></div>
-  </div>
-
-  <!-- Fee Summary -->
-  <div class="fee-box" id="feeSummaryBox">
-    <div class="fee-row original">
-      <span class="label">Original Fee</span>
-      <span class="value" id="originalFeeDisplay">₹0</span>
-    </div>
-    <div class="fee-row discount" id="discountRow" style="display:none">
-      <span class="label">Adjustment</span>
-      <span class="value" id="discountDisplay">-₹0</span>
-    </div>
-    <div class="fee-row total">
-      <span class="label">Final Fee</span>
-      <span class="value" id="finalFeeDisplay">₹0</span>
-    </div>
-  </div>
-
-  <!-- Adjust Fee -->
-  <div class="adjust-section">
-    <h3>⚙️ Fee Adjust करा (Optional)</h3>
-    <div class="adjust-row">
-      <div class="field">
-        <label>Adjusted Fee (₹)</label>
-        <input type="number" id="adjustedFee" placeholder="0" oninput="updateFeeDisplay()">
+    <div id="pd-loading" style="text-align:center;padding:30px;color:var(--muted);"><span style="font-size:28px;animation:spin 1s linear infinite;display:block;margin-bottom:8px;">⏳</span>Data load होत आहे...</div>
+    <div id="pd-fee" style="display:none;">
+      <div class="summary-grid">
+        <div class="sum-card blue"><div class="label">Final Fee</div><div class="value" id="pd-fee-total">₹0</div></div>
+        <div class="sum-card green"><div class="label">Paid</div><div class="value" id="pd-fee-paid">₹0</div></div>
+        <div class="sum-card red" style="grid-column:span 2"><div class="label">Balance</div><div class="value" id="pd-fee-balance">₹0</div></div>
       </div>
-      <div class="field">
-        <label>Reason</label>
-        <select id="adjustReason">
-          <option value="">-- कारण --</option>
-          <option value="Discount">Discount</option>
-          <option value="Late Joining">Late Joining</option>
-          <option value="Sibling Concession">Sibling Concession</option>
-          <option value="Special Case">Special Case</option>
-          <option value="Other">Other</option>
-        </select>
+      <div class="sec-title"><span>💰</span> Payment History</div>
+      <div id="pd-fee-history"></div>
+    </div>
+    <div id="pd-attendance" style="display:none;">
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <button class="filter-chip active" onclick="filterAttendance('month',this)">या महिन्यात</button>
+        <button class="filter-chip" onclick="filterAttendance('prev',this)">मागील महिना</button>
+        <button class="filter-chip" onclick="filterAttendance('all',this)">सर्व</button>
       </div>
+      <div class="detail-card" style="margin-bottom:12px;"><div class="detail-card-body">
+        <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px;">
+          <span>✅ Present: <strong id="pd-att-present" style="color:var(--green)">0</strong></span>
+          <span>❌ Absent: <strong id="pd-att-absent" style="color:var(--accent)">0</strong></span>
+          <span>📊 <strong id="pd-att-pct" style="color:var(--blue)">0%</strong></span>
+        </div>
+        <div class="progress-wrap"><div class="progress-fill" id="pd-att-bar" style="width:0%"></div></div>
+      </div></div>
+      <div id="pd-att-list"></div>
     </div>
-    <div class="field" id="reasonNoteField" style="display:none">
-      <label>Note</label>
-      <input type="text" id="reasonNote" placeholder="थोडक्यात कारण लिहा...">
+    <div id="pd-homework" style="display:none;">
+      <div class="detail-card" style="margin-bottom:12px;"><div class="detail-card-body">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;">
+          <span>✅ <strong id="pd-hw-done" style="color:var(--green)">0</strong></span>
+          <span>⏰ <strong id="pd-hw-late" style="color:var(--accent2)">0</strong></span>
+          <span>❌ <strong id="pd-hw-nd" style="color:var(--accent)">0</strong></span>
+          <span>📊 <strong id="pd-hw-pct" style="color:var(--blue)">0%</strong></span>
+        </div>
+        <div class="progress-wrap"><div class="progress-fill" id="pd-hw-bar" style="width:0%;background:var(--accent2)"></div></div>
+      </div></div>
+      <div id="pd-hw-list"></div>
     </div>
-  </div>
-
-  <button class="btn btn-primary" onclick="goToStep3()">पुढे → Confirm करा</button>
-  <button class="btn btn-secondary" onclick="goToStep1()">← मागे</button>
-</div>
-
-<!-- ===== STEP 3: Confirm ===== -->
-<div id="page3" class="hidden">
-  <div class="section-title"><span>3</span> Confirm करा</div>
-
-  <div class="confirm-card">
-    <div class="confirm-card-header">👤 विद्यार्थी माहिती</div>
-    <div class="confirm-card-body" id="confirmStudentDetails"></div>
-  </div>
-
-  <div class="confirm-card">
-    <div class="confirm-card-header">📚 Subjects</div>
-    <div class="confirm-card-body" id="confirmSubjects"></div>
-  </div>
-
-  <div class="confirm-card">
-    <div class="confirm-card-header">💰 Fee Details</div>
-    <div class="confirm-card-body" id="confirmFeeDetails"></div>
-  </div>
-
-  <div class="notice" id="confirmAdjustNote" style="display:none">
-    ⚠️ Fee adjust केली आहे — reason: <strong id="confirmReasonText"></strong>
-  </div>
-
-  <button class="btn btn-success" onclick="submitAdmission()">✅ Admission Save करा</button>
-  <button class="btn btn-secondary" onclick="goToStep2()">← मागे</button>
-</div>
-
-<!-- ===== SUCCESS ===== -->
-<div id="pageSuccess" class="hidden">
-  <div class="success-screen">
-    <div class="success-icon">🎉</div>
-    <h2>Admission झाले!</h2>
-    <p>विद्यार्थी यशस्वीरित्या नोंदणी झाला</p>
-
-    <div class="roll-display">
-      <div class="roll-label">Roll Number</div>
-      <div class="roll-num" id="successRoll">SKL-001</div>
-      <div style="font-size:13px; color:var(--muted); margin-top:4px;" id="successName"></div>
+    <div id="pd-worksheet" style="display:none;">
+      <div class="detail-card" style="margin-bottom:12px;"><div class="detail-card-body">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;">
+          <span>✅ <strong id="pd-ws-done" style="color:var(--green)">0</strong></span>
+          <span>⏰ <strong id="pd-ws-late" style="color:var(--accent2)">0</strong></span>
+          <span>❌ <strong id="pd-ws-nd" style="color:var(--accent)">0</strong></span>
+          <span>📊 <strong id="pd-ws-pct" style="color:var(--blue)">0%</strong></span>
+        </div>
+        <div class="progress-wrap"><div class="progress-fill" id="pd-ws-bar" style="width:0%;background:var(--accent2)"></div></div>
+      </div></div>
+      <div id="pd-ws-list"></div>
     </div>
-
-    <div id="successSummary"></div>
-
-    <button class="btn btn-primary" onclick="newAdmission()" style="margin-top:20px">+ नवीन Admission</button>
-  </div>
-
-  <!-- Sheet Structure Info -->
-  <div class="sheet-info">
-    <h3>📊 Google Sheet — Column Structure</h3>
-    <p style="font-size:12px; color:var(--muted); margin-bottom:10px;">हे columns तुमच्या Google Sheet मध्ये ठेवा:</p>
-
-    <p style="font-size:11px; color:var(--accent); font-weight:700; margin:8px 0 4px;">Sheet 1: Admissions</p>
-    <table class="sheet-table">
-      <tr><th>Column</th><th>Field</th></tr>
-      <tr><td>A</td><td>Roll No (SKL-001)</td></tr>
-      <tr><td>B</td><td>Student Name</td></tr>
-      <tr><td>C</td><td>Father Name</td></tr>
-      <tr><td>D</td><td>Contact</td></tr>
-      <tr><td>E</td><td>Class</td></tr>
-      <tr><td>F</td><td>Medium</td></tr>
-      <tr><td>G</td><td>Subjects (comma separated)</td></tr>
-      <tr><td>H</td><td>Original Fee</td></tr>
-      <tr><td>I</td><td>Adjusted Fee</td></tr>
-      <tr><td>J</td><td>Final Fee (=I if adjusted, else H)</td></tr>
-      <tr><td>K</td><td>Adjustment Reason</td></tr>
-      <tr><td>L</td><td>Reason Note</td></tr>
-      <tr><td>M</td><td>Admission Date</td></tr>
-      <tr><td>N</td><td>Status (Active/Inactive)</td></tr>
-    </table>
-
-    <p style="font-size:11px; color:var(--accent); font-weight:700; margin:12px 0 4px;">Sheet 2: Fee_Master</p>
-    <table class="sheet-table">
-      <tr><th>Column</th><th>Field</th></tr>
-      <tr><td>A</td><td>Class</td></tr>
-      <tr><td>B</td><td>Medium (Semi/Marathi/NA)</td></tr>
-      <tr><td>C</td><td>Subject</td></tr>
-      <tr><td>D</td><td>Fee (₹)</td></tr>
-    </table>
-
-    <p style="font-size:11px; color:var(--accent); font-weight:700; margin:12px 0 4px;">Sheet 3: Fee_Adjustments</p>
-    <table class="sheet-table">
-      <tr><th>Column</th><th>Field</th></tr>
-      <tr><td>A</td><td>Date</td></tr>
-      <tr><td>B</td><td>Roll No</td></tr>
-      <tr><td>C</td><td>Student Name</td></tr>
-      <tr><td>D</td><td>Original Fee</td></tr>
-      <tr><td>E</td><td>Adjusted Fee</td></tr>
-      <tr><td>F</td><td>Reason</td></tr>
-      <tr><td>G</td><td>Note</td></tr>
-    </table>
-  </div>
-</div>
-
-</div><!-- /content -->
-
-<script>
-// ===== APPS SCRIPT URL =====
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbznCMImMCifV8RBAgavb2F6M9ya-wB-9QlFVhBwn3M42nMM_a6EMlGP1xKh-RiynJ5ALg/exec';
-
-// Fee Master — Sheet मधून load होईल, fallback demo data
-let FEE_MASTER = {};
-let feeLoaded = false;
-
-// Demo fallback (Sheet load नाही झाली तर)
-const FEE_DEMO = {
-  "1": { "Semi": { "Mathematics": 800, "English": 700, "Science": 700 }, "Marathi": { "Mathematics": 700, "English": 600 } },
-  "2": { "Semi": { "Mathematics": 800, "English": 700, "Science": 700 }, "Marathi": { "Mathematics": 700, "English": 600 } },
-  "3": { "Semi": { "Mathematics": 900, "English": 750, "Science": 750 }, "Marathi": { "Mathematics": 800, "English": 650 } },
-  "4": { "Semi": { "Mathematics": 900, "English": 750, "Science": 750 }, "Marathi": { "Mathematics": 800, "English": 650 } },
-  "5": { "Semi": { "Mathematics": 1000, "English": 800, "Science": 800 }, "Marathi": { "Mathematics": 900, "English": 700 } },
-  "6": { "Semi": { "Mathematics": 1000, "English": 800, "Science": 800 }, "Marathi": { "Mathematics": 900, "English": 700 } },
-  "7": { "Semi": { "Mathematics": 1100, "English": 850, "Science": 850 }, "Marathi": { "Mathematics": 1000, "English": 750 } },
-  "8": { "Semi": { "Mathematics": 1500, "English": 1200, "Science": 1400 }, "Marathi": { "Mathematics": 1300, "English": 1000 } },
-  "9": { "Semi": { "Mathematics": 1600, "English": 1200, "Science": 1500 }, "Marathi": { "Mathematics": 1400, "English": 1000 } },
-  "10": { "Semi": { "Mathematics": 2000, "English": 1500, "Science": 1800 }, "Marathi": { "Mathematics": 1800, "English": 1300 } },
-  "11": { "NA": { "Mathematics": 3000, "Physics": 3000, "Chemistry": 2800, "Biology": 2500 } },
-  "12": { "NA": { "Mathematics": 3500, "Physics": 3500, "Chemistry": 3000, "Biology": 2800 } },
-};
-
-// ===== SHEET मधून FEE MASTER LOAD =====
-async function loadFeeMaster() {
-  try {
-    const res = await fetch(SCRIPT_URL);
-    const data = await res.json();
-    if (data && Object.keys(data).length > 0) {
-      FEE_MASTER = data;
-      feeLoaded = true;
-      console.log('✅ Fee Master Sheet मधून load झाला');
-    } else {
-      throw new Error('empty');
-    }
-  } catch (e) {
-    FEE_MASTER = FEE_DEMO;
-    console.log('⚠️ Demo data वापरत आहे');
-  }
-}
-
-let selectedSubjects = {};
-let originalFee = 0;
-
-// ===== CLASS CHANGE =====
-function onClassChange() {
-  const cls = document.getElementById('classSelect').value;
-  const medField = document.getElementById('mediumField');
-  if (cls === '11' || cls === '12') {
-    medField.style.opacity = '0.4';
-    document.getElementById('mediumSelect').value = '';
-    document.getElementById('mediumSelect').disabled = true;
-  } else {
-    medField.style.opacity = '1';
-    document.getElementById('mediumSelect').disabled = false;
-  }
-}
-
-// ===== STEP 1 → 2 =====
-function goToStep2() {
-  const name = document.getElementById('studentName').value.trim();
-  const father = document.getElementById('fatherName').value.trim();
-  const contact = document.getElementById('contact').value.trim();
-  const cls = document.getElementById('classSelect').value;
-  const medium = document.getElementById('mediumSelect').value;
-
-  if (!name || !father || !contact || !cls) {
-    alert('कृपया सर्व * fields भरा');
-    return;
-  }
-  if ((cls !== '11' && cls !== '12') && !medium) {
-    alert('माध्यम निवडा');
-    return;
-  }
-  if (contact.length !== 10) {
-    alert('Contact number 10 digits असावा');
-    return;
-  }
-
-  renderSubjects(cls, medium || 'NA');
-  setStep(2);
-}
-
-// ===== RENDER SUBJECTS =====
-function renderSubjects(cls, medium) {
-  selectedSubjects = {};
-  const grid = document.getElementById('subjectsGrid');
-  grid.innerHTML = '';
-  const subjects = FEE_MASTER[cls]?.[medium] || {};
-  
-  Object.entries(subjects).forEach(([sub, fee]) => {
-    const card = document.createElement('div');
-    card.className = 'subject-card';
-    card.innerHTML = `
-      <div class="check">✓</div>
-      <div class="sub-name">${sub}</div>
-      <div class="sub-fee">₹${fee.toLocaleString()}</div>
-    `;
-    card.onclick = () => toggleSubject(sub, fee, card);
-    grid.appendChild(card);
-  });
-
-  updateFeeDisplay();
-}
-
-function toggleSubject(sub, fee, card) {
-  if (selectedSubjects[sub]) {
-    delete selectedSubjects[sub];
-    card.classList.remove('selected');
-  } else {
-    selectedSubjects[sub] = fee;
-    card.classList.add('selected');
-  }
-  originalFee = Object.values(selectedSubjects).reduce((a, b) => a + b, 0);
-  document.getElementById('adjustedFee').value = '';
-  updateFeeDisplay();
-}
-
-// ===== FEE DISPLAY =====
-function updateFeeDisplay() {
-  originalFee = Object.values(selectedSubjects).reduce((a, b) => a + b, 0);
-  const adjusted = parseInt(document.getElementById('adjustedFee').value) || 0;
-  const reason = document.getElementById('adjustReason').value;
-
-  document.getElementById('originalFeeDisplay').textContent = '₹' + originalFee.toLocaleString();
-
-  const discountRow = document.getElementById('discountRow');
-  const reasonNoteField = document.getElementById('reasonNoteField');
-
-  if (adjusted > 0 && adjusted !== originalFee) {
-    const diff = originalFee - adjusted;
-    discountRow.style.display = 'flex';
-    document.getElementById('discountDisplay').textContent = (diff > 0 ? '-' : '+') + '₹' + Math.abs(diff).toLocaleString();
-    document.getElementById('finalFeeDisplay').textContent = '₹' + adjusted.toLocaleString();
-  } else {
-    discountRow.style.display = 'none';
-    document.getElementById('finalFeeDisplay').textContent = '₹' + originalFee.toLocaleString();
-  }
-
-  if (reason === 'Other') {
-    reasonNoteField.style.display = 'block';
-  } else {
-    reasonNoteField.style.display = 'none';
-  }
-}
-
-// ===== STEP 2 → 3 =====
-function goToStep3() {
-  if (Object.keys(selectedSubjects).length === 0) {
-    alert('कमीत कमी एक subject निवडा');
-    return;
-  }
-
-  const adjusted = parseInt(document.getElementById('adjustedFee').value) || 0;
-  const reason = document.getElementById('adjustReason').value;
-  const note = document.getElementById('reasonNote').value;
-
-  if (adjusted > 0 && !reason) {
-    alert('Fee adjust केल्यास reason निवडा');
-    return;
-  }
-
-  // Fill confirm page
-  const name = document.getElementById('studentName').value;
-  const father = document.getElementById('fatherName').value;
-  const contact = document.getElementById('contact').value;
-  const cls = document.getElementById('classSelect').value;
-  const medium = document.getElementById('mediumSelect').value;
-  const date = document.getElementById('admDate').value;
-
-  const clsLabel = cls === '11' ? '11th Science' : cls === '12' ? '12th Science' : cls + 'th';
-
-  document.getElementById('confirmStudentDetails').innerHTML = `
-    <div class="confirm-row"><span class="k">नाव</span><span class="v">${name}</span></div>
-    <div class="confirm-row"><span class="k">वडिलांचे नाव</span><span class="v">${father}</span></div>
-    <div class="confirm-row"><span class="k">Contact</span><span class="v">${contact}</span></div>
-    <div class="confirm-row"><span class="k">Class</span><span class="v">${clsLabel}</span></div>
-    ${medium ? `<div class="confirm-row"><span class="k">Medium</span><span class="v">${medium}</span></div>` : ''}
-    ${date ? `<div class="confirm-row"><span class="k">Date</span><span class="v">${date}</span></div>` : ''}
-  `;
-
-  const subList = Object.entries(selectedSubjects).map(([s, f]) =>
-    `<div class="confirm-row"><span class="k">${s}</span><span class="v">₹${f.toLocaleString()}</span></div>`
-  ).join('');
-  document.getElementById('confirmSubjects').innerHTML = subList;
-
-  const finalFee = adjusted > 0 ? adjusted : originalFee;
-  const feeHTML = `
-    <div class="confirm-row"><span class="k">Original Fee</span><span class="v" style="color:var(--accent2)">₹${originalFee.toLocaleString()}</span></div>
-    ${adjusted > 0 && adjusted !== originalFee ? `<div class="confirm-row"><span class="k">Adjusted Fee</span><span class="v" style="color:var(--accent)">₹${adjusted.toLocaleString()}</span></div>` : ''}
-    <div class="confirm-row"><span class="k" style="font-weight:700">Final Fee</span><span class="v" style="color:var(--green);font-size:18px">₹${finalFee.toLocaleString()}</span></div>
-  `;
-  document.getElementById('confirmFeeDetails').innerHTML = feeHTML;
-
-  const adjustNote = document.getElementById('confirmAdjustNote');
-  if (adjusted > 0 && adjusted !== originalFee) {
-    adjustNote.style.display = 'flex';
-    document.getElementById('confirmReasonText').textContent = reason + (note ? ' — ' + note : '');
-  } else {
-    adjustNote.style.display = 'none';
-  }
-
-  setStep(3);
-}
-
-// ===== SUBMIT → GOOGLE SHEET =====
-async function submitAdmission() {
-  const btn = document.querySelector('#page3 .btn-success');
-  btn.textContent = '⏳ Save करत आहे...';
-  btn.disabled = true;
-
-  const name = document.getElementById('studentName').value;
-  const father = document.getElementById('fatherName').value;
-  const contact = document.getElementById('contact').value;
-  const cls = document.getElementById('classSelect').value;
-  const medium = document.getElementById('mediumSelect').value;
-  const date = document.getElementById('admDate').value;
-  const adjusted = parseInt(document.getElementById('adjustedFee').value) || 0;
-  const reason = document.getElementById('adjustReason').value;
-  const note = document.getElementById('reasonNote').value;
-  const finalFee = adjusted > 0 ? adjusted : originalFee;
-
-  const payload = {
-    type: 'admission',
-    studentName: name,
-    fatherName: father,
-    contact: contact,
-    cls: cls,
-    medium: medium || 'NA',
-    subjects: Object.keys(selectedSubjects).join(', '),
-    originalFee: originalFee,
-    adjustedFee: adjusted > 0 ? adjusted : '',
-    finalFee: finalFee,
-    adjustReason: reason,
-    reasonNote: note,
-    admDate: date,
-    parentPassword: document.getElementById('parentPassword') ? document.getElementById('parentPassword').value : ''
-  };
-
-  // Apps Script ला GET ने पाठवतो (CORS issue टाळण्यासाठी)
-  const params = new URLSearchParams({ data: JSON.stringify(payload) });
-  const fullURL = SCRIPT_URL + '?' + params.toString();
-
-  try {
-    await fetch(fullURL, { mode: 'no-cors' });
-
-    // no-cors मध्ये response वाचता येत नाही — पण data Sheet मध्ये जातो
-    const admCount = parseInt(localStorage.getItem('skl_count') || '0') + 1;
-    localStorage.setItem('skl_count', admCount);
-    const rollNo = 'SKL-' + String(admCount).padStart(3, '0');
-
-    document.getElementById('successRoll').textContent = rollNo;
-    document.getElementById('successName').textContent = name;
-    document.getElementById('successSummary').innerHTML = `
-      <div class="confirm-card" style="margin-top:16px; text-align:left">
-        <div class="confirm-card-body">
-          <div class="confirm-row"><span class="k">Subjects</span><span class="v">${Object.keys(selectedSubjects).join(', ')}</span></div>
-          <div class="confirm-row"><span class="k">Original Fee</span><span class="v">₹${originalFee.toLocaleString()}</span></div>
-          <div class="confirm-row"><span class="k">Final Fee</span><span class="v" style="color:var(--green)">₹${finalFee.toLocaleString()}</span></div>
+    <div id="pd-test" style="display:none;">
+      <div class="detail-card" style="margin-bottom:8px;"><div class="detail-card-body">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">उपस्थिती</div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;">
+          <span>✅ Appeared: <strong id="pd-test-appeared" style="color:var(--green)">0</strong></span>
+          <span>❌ Absent: <strong id="pd-test-absent" style="color:var(--accent)">0</strong></span>
+          <span>📊 <strong id="pd-test-att-pct" style="color:var(--blue)">0%</strong></span>
+        </div>
+        <div class="progress-wrap"><div class="progress-fill" id="pd-test-att-bar" style="width:0%"></div></div>
+      </div></div>
+      <div class="detail-card" style="margin-bottom:12px;"><div class="detail-card-body">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Average Marks</div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;">
+          <span>📊 Average: <strong id="pd-test-avg-pct" style="color:var(--blue)">0%</strong></span>
+        </div>
+        <div class="progress-wrap"><div class="progress-fill" id="pd-test-avg-bar" style="width:0%;background:var(--accent2)"></div></div>
+      </div></div>
+      <div id="pd-test-list"></div>
+    </div>
+    <div id="pd-report" style="display:none;">
+      <div style="background:var(--card);border:2px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:12px;">
+        <div style="text-align:center;margin-bottom:16px;">
+          <div style="font-size:16px;font-weight:800;color:var(--accent);">⚡ Sankalp Classes</div>
+          <div style="font-size:12px;color:var(--muted);">Monthly Progress Report</div>
+          <div style="font-size:18px;font-weight:800;margin-top:8px;" id="rpt-name">—</div>
+          <div style="font-size:13px;color:var(--muted);" id="rpt-info">—</div>
+        </div>
+        <div style="display:grid;gap:10px;">
+          <div class="detail-card"><div class="detail-card-body"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><span style="font-size:14px;font-weight:700;">📋 Attendance</span><span id="rpt-att-pct" style="font-size:18px;font-weight:800;color:var(--green);">0%</span></div><div class="progress-wrap"><div class="progress-fill" id="rpt-att-bar" style="width:0%"></div></div></div></div>
+          <div class="detail-card"><div class="detail-card-body"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><span style="font-size:14px;font-weight:700;">📝 Homework</span><span id="rpt-hw-pct" style="font-size:18px;font-weight:800;color:var(--accent2);">0%</span></div><div class="progress-wrap"><div class="progress-fill" id="rpt-hw-bar" style="width:0%;background:var(--accent2)"></div></div></div></div>
+          <div class="detail-card"><div class="detail-card-body"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><span style="font-size:14px;font-weight:700;">📄 Worksheet</span><span id="rpt-ws-pct" style="font-size:18px;font-weight:800;color:var(--accent2);">0%</span></div><div class="progress-wrap"><div class="progress-fill" id="rpt-ws-bar" style="width:0%;background:var(--accent2)"></div></div></div></div>
+          <div class="detail-card"><div class="detail-card-body"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><span style="font-size:14px;font-weight:700;">✏️ Tests</span><span id="rpt-test-pct" style="font-size:18px;font-weight:800;color:var(--blue);">0%</span></div><div class="progress-wrap"><div class="progress-fill" id="rpt-test-bar" style="width:0%;background:var(--blue)"></div></div></div></div>
+          <div class="detail-card"><div class="detail-card-body" style="text-align:center;"><div style="font-size:13px;color:var(--muted);margin-bottom:4px;">Overall</div><div id="rpt-overall" style="font-size:22px;font-weight:800;">—</div></div></div>
         </div>
       </div>
-      <div class="notice" style="margin-top:8px; text-align:left">📋 Google Sheet मध्ये actual Roll No confirm करा</div>
-    `;
-    setStep(4);
+    </div>
+  </div>
+</div>
 
-  } catch(e) {
-    alert('❌ Internet नाही किंवा Script URL चुकीचा.\n\nConnection तपासा.');
-    btn.textContent = '✅ Admission Save करा';
-    btn.disabled = false;
-  }
-}
+<!-- ADMIN HEADER -->
+<div class="header">
+  <div class="header-left"><h1>⚡ Sankalp Classes</h1><p>Soegaon</p></div>
+  <div class="header-right" id="lastUpdated">—</div>
+</div>
 
-// ===== NAVIGATION =====
-function goToStep1() { setStep(1); }
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button class="nav-btn active" onclick="showPage('dashboard')" id="nav-dashboard"><span class="icon">📊</span>Dashboard</button>
+  <button class="nav-btn" onclick="showPage('students')" id="nav-students"><span class="icon">👥</span>Students</button>
+  <button class="nav-btn" onclick="showPage('classes')" id="nav-classes"><span class="icon">🏫</span>Classes</button>
+  <button class="nav-btn" onclick="showPage('admission')" id="nav-admission"><span class="icon">➕</span>Admission</button>
+  <button class="nav-btn" onclick="showPage('activity')" id="nav-activity"><span class="icon">📋</span>Activity</button>
+</div>
 
-function setStep(n) {
-  document.getElementById('page1').classList.toggle('hidden', n !== 1);
-  document.getElementById('page2').classList.toggle('hidden', n !== 2);
-  document.getElementById('page3').classList.toggle('hidden', n !== 3);
-  document.getElementById('pageSuccess').classList.toggle('hidden', n !== 4);
+<!-- PAGE 1: DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div class="loading" id="dash-loading"><span class="spin">⏳</span>Sheet मधून data load होत आहे...</div>
+  <div id="dash-content" style="display:none">
+    <div class="summary-grid">
+      <div class="sum-card blue"><div class="label">एकूण Students</div><div class="value" id="total-students">0</div></div>
+      <div class="sum-card orange"><div class="label">एकूण Fee</div><div class="value" id="total-fee">₹0</div></div>
+      <div class="sum-card green"><div class="label">Paid</div><div class="value" id="total-paid">₹0</div></div>
+      <div class="sum-card red"><div class="label">Balance</div><div class="value" id="total-balance">₹0</div></div>
+    </div>
+    <div class="sec-title"><span>🏫</span> Class-wise Summary</div>
+    <div id="class-summary-list"></div>
+  </div>
+</div>
 
-  // Update step indicators
-  ['step1-indicator','step2-indicator','step3-indicator'].forEach((id, i) => {
-    const el = document.getElementById(id);
-    el.className = 'step';
-    if (i + 1 < n) el.classList.add('done');
-    else if (i + 1 === n) el.classList.add('active');
-  });
-  document.getElementById('line1').className = 'step-line' + (n > 1 ? ' done' : '');
-  document.getElementById('line2').className = 'step-line' + (n > 2 ? ' done' : '');
+<!-- PAGE 2: STUDENTS -->
+<div class="page" id="page-students">
+  <input type="text" class="search-box" placeholder="🔍 नाव किंवा Roll No शोधा..." oninput="filterStudents(this.value)" id="searchInput">
+  <div class="filter-row" id="classFilter"><button class="filter-chip active" onclick="filterByClass('all',this)">सर्व</button></div>
+  <div id="student-list"><div class="loading"><span class="spin">⏳</span>Loading...</div></div>
+</div>
 
-  window.scrollTo(0, 0);
-}
+<!-- PAGE 3: CLASSES -->
+<div class="page" id="page-classes">
+  <div id="classes-detail-list"><div class="loading"><span class="spin">⏳</span>Loading...</div></div>
+</div>
 
-function newAdmission() {
-  document.getElementById('studentName').value = '';
-  document.getElementById('fatherName').value = '';
-  document.getElementById('contact').value = '';
-  document.getElementById('classSelect').value = '';
-  document.getElementById('mediumSelect').value = '';
-  document.getElementById('admDate').value = '';
-  document.getElementById('adjustedFee').value = '';
-  document.getElementById('adjustReason').value = '';
-  document.getElementById('reasonNote').value = '';
-  selectedSubjects = {};
-  originalFee = 0;
-  onClassChange();
-  setStep(1);
-}
+<!-- PAGE 4: ADMISSION -->
+<div class="page" id="page-admission">
+  <div class="steps">
+    <div class="step active" id="step1-indicator"><div class="step-circle">1</div><div class="step-label">Details</div></div>
+    <div class="step-line" id="line1"></div>
+    <div class="step" id="step2-indicator"><div class="step-circle">2</div><div class="step-label">Fee</div></div>
+    <div class="step-line" id="line2"></div>
+    <div class="step" id="step3-indicator"><div class="step-circle">3</div><div class="step-label">Confirm</div></div>
+  </div>
+  <div id="adm-page1">
+    <div class="section-title"><span>1</span> विद्यार्थी माहिती</div>
+    <div class="field"><label>विद्यार्थ्याचे पूर्ण नाव *</label><input type="text" id="studentName" placeholder="उदा. राहुल विठ्ठल पाटील"></div>
+    <div class="field"><label>वडिलांचे / पालकाचे नाव *</label><input type="text" id="fatherName" placeholder="उदा. विठ्ठल दत्तात्रय पाटील"></div>
+    <div class="field"><label>Contact Number *</label><input type="tel" id="contact" placeholder="9876543210" maxlength="10"></div>
+    <div class="row">
+      <div class="field"><label>इयत्ता (Class) *</label>
+        <select id="classSelect" onchange="onClassChange()">
+          <option value="">-- निवडा --</option>
+          <option value="1">1st</option><option value="2">2nd</option><option value="3">3rd</option><option value="4">4th</option><option value="5">5th</option><option value="6">6th</option><option value="7">7th</option><option value="8">8th</option><option value="9">9th</option><option value="10">10th</option><option value="11">11th Science</option><option value="12">12th Science</option>
+        </select>
+      </div>
+      <div class="field" id="mediumField"><label>माध्यम</label>
+        <select id="mediumSelect"><option value="">-- निवडा --</option><option value="Semi">Semi</option><option value="Marathi">Marathi</option></select>
+      </div>
+    </div>
+    <div class="field"><label>Parent Password *</label><input type="text" id="parentPassword" placeholder="उदा. 1234 (Parent login साठी)"></div>
+    <div class="field"><label>Admission Date</label><input type="date" id="admDate"></div>
+    <button class="btn btn-primary" onclick="goToStep2()">पुढे → Fee निवडा</button>
+  </div>
+  <div id="adm-page2" class="hidden">
+    <div class="section-title"><span>2</span> Subjects & Fee</div>
+    <div class="notice">📚 खाली subjects निवडा. Fee automatically calculate होईल.</div>
+    <div class="subjects-grid" id="subjectsGrid"></div>
+    <div class="fee-box">
+      <div class="fee-row original"><span class="label">Original Fee</span><span class="value" id="originalFeeDisplay">₹0</span></div>
+      <div class="fee-row discount" id="discountRow" style="display:none"><span class="label">Adjustment</span><span class="value" id="discountDisplay">-₹0</span></div>
+      <div class="fee-row total"><span class="label">Final Fee</span><span class="value" id="finalFeeDisplay">₹0</span></div>
+    </div>
+    <div class="adjust-section">
+      <h3>⚙️ Fee Adjust करा (Optional)</h3>
+      <div class="adjust-row">
+        <div class="field"><label>Adjusted Fee (₹)</label><input type="number" id="adjustedFee" placeholder="0" oninput="updateFeeDisplay()"></div>
+        <div class="field"><label>Reason</label>
+          <select id="adjustReason"><option value="">-- कारण --</option><option value="Discount">Discount</option><option value="Late Joining">Late Joining</option><option value="Sibling Concession">Sibling Concession</option><option value="Special Case">Special Case</option><option value="Other">Other</option></select>
+        </div>
+      </div>
+      <div class="field" id="reasonNoteField" style="display:none"><label>Note</label><input type="text" id="reasonNote" placeholder="थोडक्यात कारण लिहा..."></div>
+    </div>
+    <button class="btn btn-primary" onclick="goToStep3()">पुढे → Confirm करा</button>
+    <button class="btn btn-secondary" onclick="admSetStep(1)">← मागे</button>
+  </div>
+  <div id="adm-page3" class="hidden">
+    <div class="section-title"><span>3</span> Confirm करा</div>
+    <div class="confirm-card"><div class="confirm-card-header">👤 विद्यार्थी माहिती</div><div class="confirm-card-body" id="confirmStudentDetails"></div></div>
+    <div class="confirm-card"><div class="confirm-card-header">📚 Subjects</div><div class="confirm-card-body" id="confirmSubjects"></div></div>
+    <div class="confirm-card"><div class="confirm-card-header">💰 Fee Details</div><div class="confirm-card-body" id="confirmFeeDetails"></div></div>
+    <div class="notice" id="confirmAdjustNote" style="display:none">⚠️ Fee adjust केली आहे — reason: <strong id="confirmReasonText"></strong></div>
+    <button class="btn btn-green" onclick="submitAdmission()">✅ Admission Save करा</button>
+    <button class="btn btn-secondary" onclick="admSetStep(2)">← मागे</button>
+  </div>
+  <div id="adm-pageSuccess" class="hidden">
+    <div class="success-screen">
+      <div class="success-icon">🎉</div>
+      <h2>Admission झाले!</h2>
+      <p>विद्यार्थी यशस्वीरित्या नोंदणी झाला</p>
+      <div class="roll-display"><div class="roll-label">Roll Number</div><div class="roll-num" id="successRoll">—</div><div style="font-size:13px;color:var(--muted);margin-top:4px;" id="successName"></div></div>
+      <div id="successSummary"></div>
+      <button class="btn btn-primary" onclick="newAdmission()" style="margin-top:16px">+ नवीन Admission</button>
+      <button class="btn btn-secondary" onclick="showPage('dashboard');loadData();" style="margin-top:4px">📊 Dashboard बघा</button>
+    </div>
+  </div>
+</div>
 
-// Set today's date
-document.getElementById('admDate').value = new Date().toISOString().split('T')[0];
-document.getElementById('mediumSelect').disabled = false;
+<!-- PAGE 5: ACTIVITY -->
+<div class="page" id="page-activity">
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:16px;">
+    <button class="act-tab active" id="actTab-attendance" onclick="switchActTab('attendance')">📋 Att</button>
+    <button class="act-tab" id="actTab-homework" onclick="switchActTab('homework')">📝 HW</button>
+    <button class="act-tab" id="actTab-worksheet" onclick="switchActTab('worksheet')">📄 WS</button>
+    <button class="act-tab" id="actTab-test" onclick="switchActTab('test')">✏️ Test</button>
+  </div>
+  <!-- ATTENDANCE -->
+  <div id="act-attendance">
+    <div class="field"><label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">इयत्ता निवडा *</label>
+      <select id="attClass" onchange="loadAttendanceStudents()" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;-webkit-appearance:none;"><option value="">-- Class निवडा --</option></select>
+    </div>
+    <div class="field"><label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">दिनांक *</label>
+      <input type="date" id="attDate" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;">
+    </div>
+    <div id="att-student-list" style="margin-top:4px"></div>
+    <div id="att-save-section" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:12px 16px;margin-bottom:12px;">
+        <span style="font-size:13px;color:var(--muted)">Present: <strong id="att-present-count" style="color:var(--green)">0</strong> | Absent: <strong id="att-absent-count" style="color:var(--accent)">0</strong></span>
+        <button onclick="markAllPresent()" style="background:rgba(15,207,122,.15);color:var(--green);border:1px solid var(--green);border-radius:8px;padding:6px 12px;font-family:'Baloo 2',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">सर्व Present</button>
+      </div>
+      <button class="btn btn-green" onclick="saveAttendance()">✅ Attendance Save करा</button>
+    </div>
+  </div>
+  <!-- HOMEWORK -->
+  <div id="act-homework" style="display:none">
+    <div class="field"><label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">इयत्ता *</label>
+      <select id="hwClass" onchange="loadActivityStudents('homework')" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;-webkit-appearance:none;"><option value="">-- Class निवडा --</option></select>
+    </div>
+    <div class="field"><label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">Subject *</label>
+      <select id="hwSubject" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;-webkit-appearance:none;"><option value="">-- Subject निवडा --</option><option>Mathematics</option><option>Science</option><option>English</option><option>Physics</option><option>Chemistry</option><option>Biology</option></select>
+    </div>
+    <div class="field"><label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">Topic *</label>
+      <input type="text" id="hwTopic" placeholder="उदा. Algebra Chapter 2..." style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;">
+    </div>
+    <div class="field"><label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">दिनांक *</label>
+      <input type="date" id="hwDate" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;">
+    </div>
+    <div id="hw-student-list" style="margin-top:4px"></div>
+    <div id="hw-save-section" style="display:none">
+      <div style="background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:12px 16px;margin-bottom:12px;font-size:13px;color:var(--muted)">✅ Done: <strong id="hw-done-count" style="color:var(--green)">0</strong> | ⏰ Late: <strong id="hw-late-count" style="color:var(--accent2)">0</strong> | ❌ Not Done: <strong id="hw-notdone-count" style="color:var(--accent)">0</strong></div>
+      <button class="btn btn-green" onclick="saveActivity('homework')">✅ Homework Save करा</button>
+    </div>
+  </div>
+  <!-- WORKSHEET -->
+  <div id="act-worksheet" style="display:none">
+    <div class="field"><label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">इयत्ता *</label>
+      <select id="wsClass" onchange="loadActivityStudents('worksheet')" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;-webkit-appearance:none;"><option value="">-- Class निवडा --</option></select>
+    </div>
+    <div class="field"><label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">Subject *</label>
+      <select id="wsSubject" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;-webkit-appearance:none;"><option value="">-- Subject निवडा --</option><option>Mathematics</option><option>Science</option><option>English</option><option>Physics</option><option>Chemistry</option><option>Biology</option></select>
+    </div>
+    <div class="field"><label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">Topic *</label>
+      <input type="text" id="wsTopic" placeholder="उदा. Newton's Laws..." style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;">
+    </div>
+    <div class="field"><label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">दिनांक *</label>
+      <input type="date" id="wsDate" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;">
+    </div>
+    <div id="ws-student-list" style="margin-top:4px"></div>
+    <div id="ws-save-section" style="display:none">
+      <div style="background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:12px 16px;margin-bottom:12px;font-size:13px;color:var(--muted)">✅ Done: <strong id="ws-done-count" style="color:var(--green)">0</strong> | ⏰ Late: <strong id="ws-late-count" style="color:var(--accent2)">0</strong> | ❌ Not Done: <strong id="ws-notdone-count" style="color:var(--accent)">0</strong></div>
+      <button class="btn btn-green" onclick="saveActivity('worksheet')">✅ Worksheet Save करा</button>
+    </div>
+  </div>
+  <!-- TEST -->
+  <div id="act-test" style="display:none">
+    <div class="field"><label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">इयत्ता *</label>
+      <select id="testClass" onchange="loadTestStudents()" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;-webkit-appearance:none;"><option value="">-- Class निवडा --</option></select>
+    </div>
+    <div class="field"><label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">Subject *</label>
+      <select id="testSubject" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;-webkit-appearance:none;"><option value="">-- Subject निवडा --</option><option>Mathematics</option><option>Science</option><option>English</option><option>Physics</option><option>Chemistry</option><option>Biology</option></select>
+    </div>
+    <div class="field"><label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">Topic *</label>
+      <input type="text" id="testTopic" placeholder="उदा. Chapter 3 Test..." style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;">
+    </div>
+    <div class="field"><label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">दिनांक *</label>
+      <input type="date" id="testDate" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;">
+    </div>
+    <div class="field"><label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase">Out Of *</label>
+      <input type="number" id="testOutOf" placeholder="उदा. 25" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;">
+    </div>
+    <div id="test-student-list" style="margin-top:4px"></div>
+    <div id="test-save-section" style="display:none">
+      <div style="background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:12px 16px;margin-bottom:12px;font-size:13px;color:var(--muted)">✅ Present: <strong id="test-present-count" style="color:var(--green)">0</strong> | ❌ Absent: <strong id="test-absent-count" style="color:var(--accent)">0</strong></div>
+      <button class="btn btn-green" onclick="saveTest()">✅ Test Save करा</button>
+    </div>
+  </div>
+</div>
 
-// App सुरू होताना Fee Master load करा
+<!-- STUDENT MODAL -->
+<div class="modal-overlay" id="studentModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-name">—</div>
+    <div class="modal-sub" id="modal-sub">—</div>
+    <div class="fee-highlight">
+      <div class="fh-item"><div class="fh-label">Final Fee</div><div class="fh-value" id="modal-total" style="color:var(--blue)">₹0</div></div>
+      <div class="fh-item"><div class="fh-label">Paid</div><div class="fh-value" id="modal-paid" style="color:var(--green)">₹0</div></div>
+      <div class="fh-item"><div class="fh-label">Balance</div><div class="fh-value" id="modal-balance" style="color:var(--accent)">₹0</div></div>
+    </div>
+    <div class="detail-card"><div class="detail-card-header">👤 माहिती</div><div class="detail-card-body" id="modal-info"></div></div>
+    <div class="add-payment-section">
+      <h3>➕ नवीन Payment</h3>
+      <div class="pay-row">
+        <div class="field"><label>Amount (₹)</label><input type="number" id="payAmount" placeholder="0"></div>
+        <div class="field"><label>Date</label><input type="date" id="payDate"></div>
+      </div>
+      <div class="field"><label>Note (Optional)</label><input type="text" id="payNote" placeholder="Cash / Online / Cheque..."></div>
+      <button class="btn btn-green" onclick="addPayment()">✅ Payment Save करा</button>
+    </div>
+    <div class="detail-card"><div class="detail-card-header">💰 Payment History</div><div class="detail-card-body" id="modal-payments"></div></div>
+    <button class="btn btn-secondary" onclick="closeModal()">← बंद करा</button>
+  </div>
+</div>
+
+<script>
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbznCMImMCifV8RBAgavb2F6M9ya-wB-9QlFVhBwn3M42nMM_a6EMlGP1xKh-RiynJ5ALg/exec';
+const ADMIN_USER='admin',ADMIN_PASS='sankalp@2024';
+let currentRole='',parentStudents=[],parentData={},attFilter='month';
+let allStudents=[],allPayments=[],currentStudent=null,currentFilter='all';
+let attStatus={},hwStatus={},wsStatus={},testStatus={};
+let FEE_MASTER={},selectedSubjects={},originalFee=0;
+
+const FEE_DEMO={"1":{"Semi":{"Mathematics":800,"English":700,"Science":700},"Marathi":{"Mathematics":700,"English":600}},"2":{"Semi":{"Mathematics":800,"English":700,"Science":700},"Marathi":{"Mathematics":700,"English":600}},"3":{"Semi":{"Mathematics":900,"English":750,"Science":750},"Marathi":{"Mathematics":800,"English":650}},"4":{"Semi":{"Mathematics":900,"English":750,"Science":750},"Marathi":{"Mathematics":800,"English":650}},"5":{"Semi":{"Mathematics":1000,"English":800,"Science":800},"Marathi":{"Mathematics":900,"English":700}},"6":{"Semi":{"Mathematics":1000,"English":800,"Science":800},"Marathi":{"Mathematics":900,"English":700}},"7":{"Semi":{"Mathematics":1100,"English":850,"Science":850},"Marathi":{"Mathematics":1000,"English":750}},"8":{"Semi":{"Mathematics":1500,"English":1200,"Science":1400},"Marathi":{"Mathematics":1300,"English":1000}},"9":{"Semi":{"Mathematics":1600,"English":1200,"Science":1500},"Marathi":{"Mathematics":1400,"English":1000}},"10":{"Semi":{"Mathematics":2000,"English":1500,"Science":1800},"Marathi":{"Mathematics":1800,"English":1300}},"11":{"NA":{"Mathematics":3000,"Physics":3000,"Chemistry":2800,"Biology":2500}},"12":{"NA":{"Mathematics":3500,"Physics":3500,"Chemistry":3000,"Biology":2800}}};
+
+// LOGIN
+function switchLoginMode(m){document.getElementById('admin-login').style.display=m==='admin'?'block':'none';document.getElementById('parent-login').style.display=m==='parent'?'block':'none';document.getElementById('login-error').style.display='none';}
+function adminLogin(){const u=document.getElementById('adminUser').value.trim(),p=document.getElementById('adminPass').value.trim();if(u===ADMIN_USER&&p===ADMIN_PASS){currentRole='admin';document.getElementById('login-page').style.display='none';loadData();}else{document.getElementById('login-error').style.display='block';}}
+function parentLogin(){const contact=document.getElementById('parentContact').value.trim(),pass=document.getElementById('parentPass').value.trim();if(!contact||!pass){alert('Contact आणि Password टाका');return;}document.getElementById('login-loading').style.display='block';document.getElementById('login-error').style.display='none';const cbName='loginCb_'+Date.now(),script=document.createElement('script');let done=false;const timer=setTimeout(()=>{if(done)return;done=true;cleanup();document.getElementById('login-loading').style.display='none';document.getElementById('login-error').style.display='block';},15000);function cleanup(){clearTimeout(timer);delete window[cbName];if(script.parentNode)script.parentNode.removeChild(script);}window[cbName]=function(data){if(done)return;done=true;cleanup();document.getElementById('login-loading').style.display='none';if(data.students&&data.students.length>0){currentRole='parent';parentStudents=data.students;document.getElementById('login-page').style.display='none';showParentDashboard();}else{document.getElementById('login-error').style.display='block';}};script.onerror=()=>{};script.src=SCRIPT_URL+'?action=login&contact='+contact+'&password='+encodeURIComponent(pass)+'&callback='+cbName;document.head.appendChild(script);}
+
+// DASHBOARD
+function loadData(){if(currentRole!=='admin')return;document.getElementById('dash-loading').style.display='block';document.getElementById('dash-content').style.display='none';document.getElementById('dash-loading').innerHTML='<span class="spin">⏳</span>Sheet मधून data load होत आहे...';const cbName='sklCb_'+Date.now(),script=document.createElement('script');let done=false;const timer=setTimeout(()=>{if(done)return;done=true;cleanup();document.getElementById('dash-loading').innerHTML='❌ Data load नाही झाला.<br><small style="color:var(--muted)">Internet check करा</small><br><br><button onclick="loadData()" style="padding:10px 20px;background:var(--accent);color:white;border:none;border-radius:10px;font-family:\'Baloo 2\',sans-serif;font-size:14px;cursor:pointer;font-weight:700">🔄 Retry</button>';},15000);function cleanup(){clearTimeout(timer);delete window[cbName];if(script.parentNode)script.parentNode.removeChild(script);}window[cbName]=function(data){if(done)return;done=true;cleanup();allStudents=data.students||[];allPayments=data.payments||[];renderDashboard();renderStudents();renderClasses();initActivityClasses();document.getElementById('lastUpdated').textContent=new Date().toLocaleTimeString('mr-IN');};script.onerror=()=>{};script.src=SCRIPT_URL+'?action=dashboard&callback='+cbName;document.head.appendChild(script);}
+
+function renderDashboard(){document.getElementById('dash-loading').style.display='none';document.getElementById('dash-content').style.display='block';const tF=allStudents.reduce((s,st)=>s+(st.finalFee||0),0),tP=allStudents.reduce((s,st)=>s+getPaid(st.rollNo),0),tB=tF-tP;document.getElementById('total-students').textContent=allStudents.length;document.getElementById('total-fee').textContent='₹'+fmt(tF);document.getElementById('total-paid').textContent='₹'+fmt(tP);document.getElementById('total-balance').textContent='₹'+fmt(tB);const cm={};allStudents.forEach(st=>{const k='Class '+st.cls+(st.medium&&st.medium!=='NA'?' ('+st.medium+')':'');if(!cm[k])cm[k]={students:[],fee:0,paid:0};cm[k].students.push(st);cm[k].fee+=st.finalFee||0;cm[k].paid+=getPaid(st.rollNo);});const list=document.getElementById('class-summary-list');list.innerHTML='';Object.entries(cm).sort().forEach(([cls,d])=>{const bal=d.fee-d.paid,pct=d.fee>0?Math.round((d.paid/d.fee)*100):0;list.innerHTML+=`<div class="class-card"><div class="class-card-header"><div class="class-name">${cls}</div><div class="student-count">${d.students.length} विद्यार्थी</div></div><div class="fee-bars"><div class="fee-bar-item"><div class="fee-bar-label">Total</div><div class="fee-bar-value total">₹${fmt(d.fee)}</div></div><div class="fee-bar-item"><div class="fee-bar-label">Paid</div><div class="fee-bar-value paid">₹${fmt(d.paid)}</div></div><div class="fee-bar-item"><div class="fee-bar-label">Balance</div><div class="fee-bar-value balance">₹${fmt(bal)}</div></div></div><div class="progress-wrap"><div class="progress-fill" style="width:${pct}%"></div></div></div>`;});}
+
+function renderStudents(filter=''){const classes=[...new Set(allStudents.map(st=>st.cls))].sort((a,b)=>a-b);const cc=document.getElementById('classFilter');cc.innerHTML=`<button class="filter-chip ${currentFilter==='all'?'active':''}" onclick="filterByClass('all',this)">सर्व</button>`;classes.forEach(cls=>{cc.innerHTML+=`<button class="filter-chip ${currentFilter===cls?'active':''}" onclick="filterByClass('${cls}',this)">${cls}th</button>`;});let students=allStudents;if(currentFilter!=='all')students=students.filter(st=>st.cls===currentFilter);if(filter){const q=filter.toLowerCase();students=students.filter(st=>st.name?.toLowerCase().includes(q)||st.rollNo?.toLowerCase().includes(q)||st.fatherName?.toLowerCase().includes(q));}const list=document.getElementById('student-list');if(students.length===0){list.innerHTML='<div class="empty">कोणी सापडले नाही</div>';return;}list.innerHTML=students.map(st=>{const paid=getPaid(st.rollNo),bal=(st.finalFee||0)-paid;return`<div class="student-card" onclick="openStudent('${st.rollNo}')"><div class="student-header"><div><div class="student-name">${st.name}</div><div class="student-roll">${st.rollNo}</div><div class="student-class">Class ${st.cls}${st.medium&&st.medium!=='NA'?' • '+st.medium:''}</div></div><div class="balance-badge ${bal>0?'due':'clear'}">${bal>0?'₹'+fmt(bal)+' बाकी':'✓ Clear'}</div></div></div>`;}).join('');}
+function filterStudents(val){renderStudents(val);}
+function filterByClass(cls,el){currentFilter=cls;document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderStudents(document.getElementById('searchInput')?.value||'');}
+
+function renderClasses(){const cm={};allStudents.forEach(st=>{const k='Class '+st.cls+(st.medium&&st.medium!=='NA'?' — '+st.medium:'');if(!cm[k])cm[k]=[];cm[k].push(st);});const list=document.getElementById('classes-detail-list');list.innerHTML='';Object.entries(cm).sort().forEach(([cls,students])=>{const tF=students.reduce((s,st)=>s+(st.finalFee||0),0),tP=students.reduce((s,st)=>s+getPaid(st.rollNo),0),bal=tF-tP;list.innerHTML+=`<div class="sec-title"><span>🏫</span>${cls}</div><div class="detail-card" style="margin-bottom:12px"><div class="detail-card-body"><div class="detail-row"><span class="k">Students</span><span class="v" style="color:var(--blue)">${students.length}</span></div><div class="detail-row"><span class="k">Total Fee</span><span class="v" style="color:var(--accent2)">₹${fmt(tF)}</span></div><div class="detail-row"><span class="k">Paid</span><span class="v" style="color:var(--green)">₹${fmt(tP)}</span></div><div class="detail-row"><span class="k">Balance</span><span class="v" style="color:var(--accent)">₹${fmt(bal)}</span></div></div></div>${students.map(st=>{const p=getPaid(st.rollNo),b=(st.finalFee||0)-p;return`<div class="student-card" onclick="openStudent('${st.rollNo}')" style="margin-bottom:8px"><div class="student-header"><div><div class="student-name">${st.name}</div><div class="student-roll">${st.rollNo} • ${st.subjects||''}</div></div><div class="balance-badge ${b>0?'due':'clear'}">${b>0?'₹'+fmt(b)+' बाकी':'✓ Clear'}</div></div></div>`;}).join('')}`;});}
+
+function openStudent(rollNo){currentStudent=allStudents.find(st=>st.rollNo===rollNo);if(!currentStudent)return;const paid=getPaid(rollNo),bal=(currentStudent.finalFee||0)-paid;document.getElementById('modal-name').textContent=currentStudent.name;document.getElementById('modal-sub').textContent=currentStudent.rollNo+' • Class '+currentStudent.cls+(currentStudent.medium&&currentStudent.medium!=='NA'?' '+currentStudent.medium:'');document.getElementById('modal-total').textContent='₹'+fmt(currentStudent.finalFee||0);document.getElementById('modal-paid').textContent='₹'+fmt(paid);document.getElementById('modal-balance').textContent='₹'+fmt(bal);document.getElementById('modal-info').innerHTML=`<div class="detail-row"><span class="k">वडिलांचे नाव</span><span class="v">${currentStudent.fatherName||'—'}</span></div><div class="detail-row"><span class="k">Contact</span><span class="v">${currentStudent.contact||'—'}</span></div><div class="detail-row"><span class="k">Subjects</span><span class="v">${currentStudent.subjects||'—'}</span></div><div class="detail-row"><span class="k">Original Fee</span><span class="v">₹${fmt(currentStudent.originalFee||0)}</span></div><div class="detail-row"><span class="k">Final Fee</span><span class="v" style="color:var(--blue)">₹${fmt(currentStudent.finalFee||0)}</span></div>${currentStudent.adjustReason?`<div class="detail-row"><span class="k">Adjustment</span><span class="v" style="color:var(--accent)">${currentStudent.adjustReason}</span></div>`:''}<div class="detail-row"><span class="k">Admission Date</span><span class="v">${currentStudent.admDate?String(currentStudent.admDate).substring(0,10):'—'}</span></div>`;renderPaymentHistory(rollNo);document.getElementById('payDate').value=new Date().toISOString().split('T')[0];document.getElementById('payAmount').value='';document.getElementById('payNote').value='';document.getElementById('studentModal').classList.add('open');}
+function renderPaymentHistory(rollNo){const payments=allPayments.filter(p=>p.rollNo===rollNo),container=document.getElementById('modal-payments');if(payments.length===0){container.innerHTML='<div class="empty">अजून कोणतेही payment नाही</div>';return;}container.innerHTML=payments.map(p=>`<div class="payment-row"><div><div class="payment-amount">₹${fmt(p.amount)}</div><div class="payment-date">${String(p.date).substring(0,10)} ${p.note?'• '+p.note:''}</div></div></div>`).join('');}
+function closeModal(){document.getElementById('studentModal').classList.remove('open');currentStudent=null;}
+
+async function addPayment(){const amount=parseInt(document.getElementById('payAmount').value),date=document.getElementById('payDate').value,note=document.getElementById('payNote').value;if(!amount||amount<=0){alert('Amount टाका');return;}if(!date){alert('Date निवडा');return;}const btn=document.querySelector('#studentModal .btn-green');btn.textContent='⏳ Save करत आहे...';btn.disabled=true;const payload={type:'payment',rollNo:currentStudent.rollNo,studentName:currentStudent.name,amount,date,note};const params=new URLSearchParams({data:JSON.stringify(payload)});try{await fetch(SCRIPT_URL+'?'+params.toString(),{mode:'no-cors'});allPayments.push({rollNo:currentStudent.rollNo,amount,date,note});renderPaymentHistory(currentStudent.rollNo);const paid=getPaid(currentStudent.rollNo),bal=(currentStudent.finalFee||0)-paid;document.getElementById('modal-paid').textContent='₹'+fmt(paid);document.getElementById('modal-balance').textContent='₹'+fmt(bal);document.getElementById('payAmount').value='';document.getElementById('payNote').value='';alert('✅ Payment save झाले!');renderDashboard();renderStudents();}catch(e){alert('❌ Save नाही झाले');}btn.textContent='✅ Payment Save करा';btn.disabled=false;}
+
+function getPaid(rollNo){return allPayments.filter(p=>p.rollNo===rollNo).reduce((s,p)=>s+(p.amount||0),0);}
+function fmt(n){if(n>=100000)return(n/100000).toFixed(1)+'L';if(n>=1000)return(n/1000).toFixed(1)+'k';return n.toLocaleString('en-IN');}
+function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');document.getElementById('nav-'+name).classList.add('active');window.scrollTo(0,0);}
+
+// ADMISSION
+async function loadFeeMaster(){try{const res=await fetch(SCRIPT_URL),data=await res.json();if(data&&Object.keys(data).length>0)FEE_MASTER=data;else throw new Error('empty');}catch(e){FEE_MASTER=FEE_DEMO;}}
+function onClassChange(){const cls=document.getElementById('classSelect').value,mf=document.getElementById('mediumField');if(cls==='11'||cls==='12'){mf.style.opacity='0.4';document.getElementById('mediumSelect').value='';document.getElementById('mediumSelect').disabled=true;}else{mf.style.opacity='1';document.getElementById('mediumSelect').disabled=false;}}
+function goToStep2(){const name=document.getElementById('studentName').value.trim(),father=document.getElementById('fatherName').value.trim(),contact=document.getElementById('contact').value.trim(),cls=document.getElementById('classSelect').value,medium=document.getElementById('mediumSelect').value;if(!name||!father||!contact||!cls){alert('कृपया सर्व * fields भरा');return;}if((cls!=='11'&&cls!=='12')&&!medium){alert('माध्यम निवडा');return;}if(contact.length!==10){alert('Contact number 10 digits असावा');return;}renderSubjects(cls,medium||'NA');admSetStep(2);}
+function renderSubjects(cls,medium){selectedSubjects={};const grid=document.getElementById('subjectsGrid');grid.innerHTML='';const subjects=FEE_MASTER[cls]?.[medium]||{};Object.entries(subjects).forEach(([sub,fee])=>{const card=document.createElement('div');card.className='subject-card';card.innerHTML=`<div class="check">✓</div><div class="sub-name">${sub}</div><div class="sub-fee">₹${fee.toLocaleString()}</div>`;card.onclick=()=>toggleSubject(sub,fee,card);grid.appendChild(card);});updateFeeDisplay();}
+function toggleSubject(sub,fee,card){if(selectedSubjects[sub]){delete selectedSubjects[sub];card.classList.remove('selected');}else{selectedSubjects[sub]=fee;card.classList.add('selected');}originalFee=Object.values(selectedSubjects).reduce((a,b)=>a+b,0);document.getElementById('adjustedFee').value='';updateFeeDisplay();}
+function updateFeeDisplay(){originalFee=Object.values(selectedSubjects).reduce((a,b)=>a+b,0);const adjusted=parseInt(document.getElementById('adjustedFee').value)||0,reason=document.getElementById('adjustReason').value;document.getElementById('originalFeeDisplay').textContent='₹'+originalFee.toLocaleString();const dr=document.getElementById('discountRow'),rnf=document.getElementById('reasonNoteField');if(adjusted>0&&adjusted!==originalFee){const diff=originalFee-adjusted;dr.style.display='flex';document.getElementById('discountDisplay').textContent=(diff>0?'-':'+'+'₹'+Math.abs(diff).toLocaleString());document.getElementById('finalFeeDisplay').textContent='₹'+adjusted.toLocaleString();}else{dr.style.display='none';document.getElementById('finalFeeDisplay').textContent='₹'+originalFee.toLocaleString();}rnf.style.display=reason==='Other'?'block':'none';}
+function goToStep3(){if(Object.keys(selectedSubjects).length===0){alert('कमीत कमी एक subject निवडा');return;}const adjusted=parseInt(document.getElementById('adjustedFee').value)||0,reason=document.getElementById('adjustReason').value;if(adjusted>0&&!reason){alert('Fee adjust केल्यास reason निवडा');return;}const name=document.getElementById('studentName').value,father=document.getElementById('fatherName').value,contact=document.getElementById('contact').value,cls=document.getElementById('classSelect').value,medium=document.getElementById('mediumSelect').value,date=document.getElementById('admDate').value,note=document.getElementById('reasonNote').value,clsLabel=cls==='11'?'11th Science':cls==='12'?'12th Science':cls+'th';document.getElementById('confirmStudentDetails').innerHTML=`<div class="confirm-row"><span class="k">नाव</span><span class="v">${name}</span></div><div class="confirm-row"><span class="k">वडिलांचे नाव</span><span class="v">${father}</span></div><div class="confirm-row"><span class="k">Contact</span><span class="v">${contact}</span></div><div class="confirm-row"><span class="k">Class</span><span class="v">${clsLabel}</span></div>${medium?`<div class="confirm-row"><span class="k">Medium</span><span class="v">${medium}</span></div>`:''} ${date?`<div class="confirm-row"><span class="k">Date</span><span class="v">${date}</span></div>`:''}`;document.getElementById('confirmSubjects').innerHTML=Object.entries(selectedSubjects).map(([s,f])=>`<div class="confirm-row"><span class="k">${s}</span><span class="v">₹${f.toLocaleString()}</span></div>`).join('');const finalFee=adjusted>0?adjusted:originalFee;document.getElementById('confirmFeeDetails').innerHTML=`<div class="confirm-row"><span class="k">Original Fee</span><span class="v" style="color:var(--accent2)">₹${originalFee.toLocaleString()}</span></div>${adjusted>0&&adjusted!==originalFee?`<div class="confirm-row"><span class="k">Adjusted Fee</span><span class="v" style="color:var(--accent)">₹${adjusted.toLocaleString()}</span></div>`:''}<div class="confirm-row"><span class="k" style="font-weight:700">Final Fee</span><span class="v" style="color:var(--green);font-size:18px">₹${finalFee.toLocaleString()}</span></div>`;const an=document.getElementById('confirmAdjustNote');if(adjusted>0&&adjusted!==originalFee){an.style.display='flex';document.getElementById('confirmReasonText').textContent=reason+(note?' — '+note:'');}else{an.style.display='none';}admSetStep(3);}
+
+function submitAdmission(){const btn=document.querySelector('#adm-page3 .btn-green');btn.textContent='⏳ Save करत आहे...';btn.disabled=true;const name=document.getElementById('studentName').value,father=document.getElementById('fatherName').value,contact=document.getElementById('contact').value,cls=document.getElementById('classSelect').value,medium=document.getElementById('mediumSelect').value,date=document.getElementById('admDate').value,adjusted=parseInt(document.getElementById('adjustedFee').value)||0,reason=document.getElementById('adjustReason').value,note=document.getElementById('reasonNote').value,finalFee=adjusted>0?adjusted:originalFee,payload={type:'admission',studentName:name,fatherName:father,contact,cls,medium:medium||'NA',subjects:Object.keys(selectedSubjects).join(', '),originalFee,adjustedFee:adjusted>0?adjusted:'',finalFee,adjustReason:reason,reasonNote:note,admDate:date,parentPassword:document.getElementById('parentPassword').value||''};const params=new URLSearchParams({data:JSON.stringify(payload)}),cbName='admCb_'+Date.now(),script=document.createElement('script');let done=false;const timer=setTimeout(()=>{if(done)return;done=true;cleanup();document.getElementById('successRoll').textContent='(Sheet बघा)';document.getElementById('successName').textContent=name;admSetStep(4);btn.textContent='✅ Admission Save करा';btn.disabled=false;},15000);function cleanup(){clearTimeout(timer);delete window[cbName];if(script.parentNode)script.parentNode.removeChild(script);}window[cbName]=function(data){if(done)return;done=true;cleanup();document.getElementById('successRoll').textContent=data.rollNo||'(Sheet बघा)';document.getElementById('successName').textContent=name;document.getElementById('successSummary').innerHTML=`<div class="confirm-card" style="margin-top:16px;text-align:left"><div class="confirm-card-body"><div class="confirm-row"><span class="k">Subjects</span><span class="v">${Object.keys(selectedSubjects).join(', ')}</span></div><div class="confirm-row"><span class="k">Original Fee</span><span class="v">₹${originalFee.toLocaleString()}</span></div><div class="confirm-row"><span class="k">Final Fee</span><span class="v" style="color:var(--green)">₹${finalFee.toLocaleString()}</span></div></div></div>`;admSetStep(4);btn.textContent='✅ Admission Save करा';btn.disabled=false;};script.onerror=()=>{};script.src=SCRIPT_URL+'?'+params.toString()+'&callback='+cbName;document.head.appendChild(script);}
+
+function admSetStep(n){document.getElementById('adm-page1').classList.toggle('hidden',n!==1);document.getElementById('adm-page2').classList.toggle('hidden',n!==2);document.getElementById('adm-page3').classList.toggle('hidden',n!==3);document.getElementById('adm-pageSuccess').classList.toggle('hidden',n!==4);['step1-indicator','step2-indicator','step3-indicator'].forEach((id,i)=>{const el=document.getElementById(id);el.className='step';if(i+1<n)el.classList.add('done');else if(i+1===n)el.classList.add('active');});document.getElementById('line1').className='step-line'+(n>1?' done':'');document.getElementById('line2').className='step-line'+(n>2?' done':'');window.scrollTo(0,0);}
+function newAdmission(){['studentName','fatherName','contact','admDate','adjustedFee','reasonNote','parentPassword'].forEach(id=>document.getElementById(id).value='');document.getElementById('classSelect').value='';document.getElementById('mediumSelect').value='';document.getElementById('adjustReason').value='';selectedSubjects={};originalFee=0;onClassChange();admSetStep(1);}
+
+// ACTIVITY
+function switchActTab(tab){['attendance','homework','worksheet','test'].forEach(t=>{document.getElementById('act-'+t).style.display=t===tab?'block':'none';document.getElementById('actTab-'+t).classList.toggle('active',t===tab);});}
+function initActivityClasses(){const classes=[...new Set(allStudents.map(st=>st.cls))].sort((a,b)=>a-b);['attClass','hwClass','wsClass','testClass'].forEach(id=>{const sel=document.getElementById(id);sel.innerHTML='<option value="">-- Class निवडा --</option>';classes.forEach(cls=>{sel.innerHTML+=`<option value="${cls}">Class ${cls}</option>`;});});}
+
+function loadAttendanceStudents(){const cls=document.getElementById('attClass').value,list=document.getElementById('att-student-list'),saveSection=document.getElementById('att-save-section');attStatus={};if(!cls){list.innerHTML='';saveSection.style.display='none';return;}const students=allStudents.filter(st=>st.cls===cls);if(students.length===0){list.innerHTML='<div class="empty">या class मध्ये कोणी नाही</div>';return;}students.forEach(st=>{attStatus[st.rollNo]='P';});list.innerHTML=students.map(st=>`<div class="att-student-row" id="att-row-${st.rollNo}"><div><div style="font-size:15px;font-weight:700">${st.name}</div><div style="font-size:12px;color:var(--muted)">${st.rollNo}</div></div><div class="att-toggle"><button id="btn-P-${st.rollNo}" class="present-active" onclick="setAtt('${st.rollNo}','P')">✅ P</button><button id="btn-A-${st.rollNo}" onclick="setAtt('${st.rollNo}','A')">❌ A</button></div></div>`).join('');saveSection.style.display='block';updateAttCount();}
+function setAtt(rollNo,status){attStatus[rollNo]=status;document.getElementById('btn-P-'+rollNo).className=status==='P'?'present-active':'';document.getElementById('btn-A-'+rollNo).className=status==='A'?'absent-active':'';updateAttCount();}
+function markAllPresent(){Object.keys(attStatus).forEach(rollNo=>setAtt(rollNo,'P'));}
+function updateAttCount(){const vals=Object.values(attStatus);document.getElementById('att-present-count').textContent=vals.filter(v=>v==='P').length;document.getElementById('att-absent-count').textContent=vals.filter(v=>v==='A').length;}
+
+async function saveAttendance(){const cls=document.getElementById('attClass').value,date=document.getElementById('attDate').value;if(!date){alert('दिनांक निवडा');return;}if(Object.keys(attStatus).length===0){alert('Students नाहीत');return;}const btn=document.querySelector('#act-attendance .btn-green');btn.textContent='⏳ Save करत आहे...';btn.disabled=true;const records=Object.entries(attStatus).map(([rollNo,status])=>{const st=allStudents.find(s=>s.rollNo===rollNo);return{date,rollNo,studentName:st?.name||'',cls,status:status==='P'?'Present':'Absent'};});const payload={type:'attendance',records},params=new URLSearchParams({data:JSON.stringify(payload)});try{await fetch(SCRIPT_URL+'?'+params.toString(),{mode:'no-cors'});alert('✅ Attendance save झाले! Present: '+records.filter(r=>r.status==='Present').length+', Absent: '+records.filter(r=>r.status==='Absent').length);}catch(e){alert('❌ Save नाही झाले');}btn.textContent='✅ Attendance Save करा';btn.disabled=false;}
+
+function loadActivityStudents(type){const clsId=type==='homework'?'hwClass':'wsClass',listId=type==='homework'?'hw-student-list':'ws-student-list',saveId=type==='homework'?'hw-save-section':'ws-save-section',cls=document.getElementById(clsId).value,list=document.getElementById(listId),saveSection=document.getElementById(saveId);if(type==='homework')hwStatus={};else wsStatus={};if(!cls){list.innerHTML='';saveSection.style.display='none';return;}const students=allStudents.filter(st=>st.cls===cls);if(students.length===0){list.innerHTML='<div class="empty">या class मध्ये कोणी नाही</div>';return;}students.forEach(st=>{if(type==='homework')hwStatus[st.rollNo]='D';else wsStatus[st.rollNo]='D';});const prefix=type==='homework'?'hw':'ws';list.innerHTML=students.map(st=>`<div class="att-student-row"><div><div style="font-size:14px;font-weight:700">${st.name}</div><div style="font-size:11px;color:var(--muted)">${st.rollNo}</div></div><div style="display:flex;gap:4px;"><button id="${prefix}-btn-D-${st.rollNo}" class="present-active" onclick="setActivity('${type}','${st.rollNo}','D')" style="padding:5px 8px;border-radius:8px;border:none;font-size:11px;font-weight:700;cursor:pointer;">✅</button><button id="${prefix}-btn-L-${st.rollNo}" onclick="setActivity('${type}','${st.rollNo}','L')" style="padding:5px 8px;border-radius:8px;border:none;font-size:11px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--muted);">⏰</button><button id="${prefix}-btn-N-${st.rollNo}" onclick="setActivity('${type}','${st.rollNo}','N')" style="padding:5px 8px;border-radius:8px;border:none;font-size:11px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--muted);">❌</button></div></div>`).join('');saveSection.style.display='block';updateActivityCount(type);}
+function setActivity(type,rollNo,status){const prefix=type==='homework'?'hw':'ws';if(type==='homework')hwStatus[rollNo]=status;else wsStatus[rollNo]=status;['D','L','N'].forEach(s=>{const btn=document.getElementById(`${prefix}-btn-${s}-${rollNo}`);if(s===status){btn.className=s==='D'?'present-active':s==='L'?'late-active':'absent-active';btn.style.background='';btn.style.color='';}else{btn.className='';btn.style.background='var(--surface)';btn.style.color='var(--muted)';}});updateActivityCount(type);}
+function updateActivityCount(type){const statusObj=type==='homework'?hwStatus:wsStatus,vals=Object.values(statusObj),prefix=type==='homework'?'hw':'ws';document.getElementById(prefix+'-done-count').textContent=vals.filter(v=>v==='D').length;document.getElementById(prefix+'-late-count').textContent=vals.filter(v=>v==='L').length;document.getElementById(prefix+'-notdone-count').textContent=vals.filter(v=>v==='N').length;}
+async function saveActivity(type){const clsId=type==='homework'?'hwClass':'wsClass',dateId=type==='homework'?'hwDate':'wsDate',subjectId=type==='homework'?'hwSubject':'wsSubject',topicId=type==='homework'?'hwTopic':'wsTopic',statusObj=type==='homework'?hwStatus:wsStatus,cls=document.getElementById(clsId).value,date=document.getElementById(dateId).value,subject=document.getElementById(subjectId).value,topic=document.getElementById(topicId).value.trim();if(!date){alert('दिनांक निवडा');return;}if(!subject){alert('Subject निवडा');return;}if(!topic){alert('Topic लिहा');return;}if(Object.keys(statusObj).length===0){alert('Students नाहीत');return;}const btn=type==='homework'?document.querySelector('#hw-save-section .btn-green'):document.querySelector('#ws-save-section .btn-green');btn.textContent='⏳ Save करत आहे...';btn.disabled=true;const records=Object.entries(statusObj).map(([rollNo,status])=>{const st=allStudents.find(s=>s.rollNo===rollNo),statusText=status==='D'?'Done':status==='L'?'Late':'Not Done';return{date,rollNo,studentName:st?.name||'',cls,subject,topic,status:statusText};});const payload={type,records},params=new URLSearchParams({data:JSON.stringify(payload)});try{await fetch(SCRIPT_URL+'?'+params.toString(),{mode:'no-cors'});const done=records.filter(r=>r.status==='Done').length,late=records.filter(r=>r.status==='Late').length,nd=records.filter(r=>r.status==='Not Done').length;alert(`✅ ${type==='homework'?'Homework':'Worksheet'} save झाले!\n✅ Done: ${done} | ⏰ Late: ${late} | ❌ Not Done: ${nd}`);}catch(e){alert('❌ Save नाही झाले');}btn.textContent=type==='homework'?'✅ Homework Save करा':'✅ Worksheet Save करा';btn.disabled=false;}
+
+function loadTestStudents(){const cls=document.getElementById('testClass').value,list=document.getElementById('test-student-list'),saveSection=document.getElementById('test-save-section');testStatus={};if(!cls){list.innerHTML='';saveSection.style.display='none';return;}const students=allStudents.filter(st=>st.cls===cls);if(students.length===0){list.innerHTML='<div class="empty">या class मध्ये कोणी नाही</div>';return;}students.forEach(st=>{testStatus[st.rollNo]={status:'P',marks:''};});list.innerHTML=students.map(st=>`<div class="att-student-row"><div><div style="font-size:14px;font-weight:700">${st.name}</div><div style="font-size:11px;color:var(--muted)">${st.rollNo}</div></div><div style="display:flex;gap:8px;align-items:center;"><input type="number" id="test-marks-${st.rollNo}" placeholder="गुण" min="0" oninput="testStatus['${st.rollNo}'].marks=this.value" style="width:60px;background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:6px 8px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:13px;outline:none;text-align:center;"><div style="display:flex;gap:4px;"><button id="test-btn-P-${st.rollNo}" class="present-active" onclick="setTestStatus('${st.rollNo}','P')" style="padding:5px 8px;border-radius:8px;border:none;font-size:11px;font-weight:700;cursor:pointer;">✅</button><button id="test-btn-A-${st.rollNo}" onclick="setTestStatus('${st.rollNo}','A')" style="padding:5px 8px;border-radius:8px;border:none;font-size:11px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--muted);">❌</button></div></div></div>`).join('');saveSection.style.display='block';updateTestCount();}
+function setTestStatus(rollNo,status){testStatus[rollNo].status=status;const pBtn=document.getElementById('test-btn-P-'+rollNo),aBtn=document.getElementById('test-btn-A-'+rollNo),mi=document.getElementById('test-marks-'+rollNo);if(status==='P'){pBtn.className='present-active';pBtn.style.background='';pBtn.style.color='';aBtn.className='';aBtn.style.background='var(--surface)';aBtn.style.color='var(--muted)';mi.disabled=false;mi.style.opacity='1';}else{aBtn.className='absent-active';aBtn.style.background='';aBtn.style.color='';pBtn.className='';pBtn.style.background='var(--surface)';pBtn.style.color='var(--muted)';mi.disabled=true;mi.style.opacity='0.4';mi.value='';testStatus[rollNo].marks='';}updateTestCount();}
+function updateTestCount(){const vals=Object.values(testStatus);document.getElementById('test-present-count').textContent=vals.filter(v=>v.status==='P').length;document.getElementById('test-absent-count').textContent=vals.filter(v=>v.status==='A').length;}
+async function saveTest(){const cls=document.getElementById('testClass').value,date=document.getElementById('testDate').value,subject=document.getElementById('testSubject').value,topic=document.getElementById('testTopic').value.trim(),outOf=document.getElementById('testOutOf').value;if(!date){alert('दिनांक निवडा');return;}if(!subject){alert('Subject निवडा');return;}if(!topic){alert('Topic लिहा');return;}if(!outOf){alert('Out Of लिहा');return;}if(Object.keys(testStatus).length===0){alert('Students नाहीत');return;}const btn=document.querySelector('#test-save-section .btn-green');btn.textContent='⏳ Save करत आहे...';btn.disabled=true;const records=Object.entries(testStatus).map(([rollNo,d])=>{const st=allStudents.find(s=>s.rollNo===rollNo);return{date,rollNo,studentName:st?.name||'',cls,subject,topic,status:d.status==='P'?'Present':'Absent',marks:d.status==='P'?(d.marks||''):'',outOf};});const payload={type:'test',records},params=new URLSearchParams({data:JSON.stringify(payload)});try{await fetch(SCRIPT_URL+'?'+params.toString(),{mode:'no-cors'});const present=records.filter(r=>r.status==='Present').length;alert(`✅ Test save झाले!\nPresent: ${present} | Absent: ${records.length-present}`);}catch(e){alert('❌ Save नाही झाले');}btn.textContent='✅ Test Save करा';btn.disabled=false;}
+
+// PARENT VIEW
+function showParentDashboard(){document.getElementById('parent-view').style.display='block';document.querySelector('.header').style.display='none';document.querySelector('.bottom-nav').style.display='none';document.querySelectorAll('.page').forEach(p=>p.style.display='none');renderParentKids();}
+function renderParentKids(){document.getElementById('parent-students-list').style.display='block';document.getElementById('parent-detail').style.display='none';document.getElementById('parent-kids-list').innerHTML=parentStudents.map(st=>`<div class="student-card" onclick="openParentStudent('${st.rollNo}','${st.name}','${st.cls}')"><div class="student-header"><div><div class="student-name">${st.name}</div><div class="student-roll">${st.rollNo} • Class ${st.cls}</div></div><div style="font-size:20px;">→</div></div></div>`).join('');}
+function showParentStudentsList(){document.getElementById('parent-students-list').style.display='block';document.getElementById('parent-detail').style.display='none';}
+function openParentStudent(rollNo,name,cls){document.getElementById('parent-students-list').style.display='none';document.getElementById('parent-detail').style.display='block';document.getElementById('pd-name').textContent=name;document.getElementById('pd-info').textContent=rollNo+' • Class '+cls;document.getElementById('pd-loading').style.display='block';['fee','attendance','homework','worksheet','test','report'].forEach(t=>document.getElementById('pd-'+t).style.display='none');switchParentTab('fee');const cbName='pdCb_'+Date.now(),script=document.createElement('script');let done=false;const timer=setTimeout(()=>{if(done)return;done=true;cleanup();document.getElementById('pd-loading').innerHTML='❌ Data load नाही झाला';},15000);function cleanup(){clearTimeout(timer);delete window[cbName];if(script.parentNode)script.parentNode.removeChild(script);}window[cbName]=function(data){if(done)return;done=true;cleanup();parentData=data;document.getElementById('pd-loading').style.display='none';const st=data.student||{};document.getElementById('pd-info').textContent=rollNo+' • Class '+cls+(st.medium&&st.medium!=='NA'?' • '+st.medium:'')+(st.subjects?' | '+st.subjects:'');renderParentFee();renderParentAttendance('month');renderParentHomework();renderParentWorksheet();renderParentTest();renderParentReport();switchParentTab('fee');};script.onerror=()=>{};script.src=SCRIPT_URL+'?action=parentData&rollNo='+rollNo+'&callback='+cbName;document.head.appendChild(script);}
+function switchParentTab(tab){['fee','attendance','homework','worksheet','test','report'].forEach(t=>{document.getElementById('pd-'+t).style.display=t===tab?'block':'none';document.getElementById('ptab-'+t).classList.toggle('active',t===tab);});}
+function parentLogout(){currentRole='';parentStudents=[];parentData={};document.getElementById('parent-view').style.display='none';document.getElementById('login-page').style.display='flex';document.getElementById('parentContact').value='';document.getElementById('parentPass').value='';document.getElementById('login-error').style.display='none';}
+
+function renderParentFee(){const{student,payments}=parentData,paid=(payments||[]).reduce((s,p)=>s+(p.amount||0),0),balance=(student?.finalFee||0)-paid;document.getElementById('pd-fee-total').textContent='₹'+fmt(student?.finalFee||0);document.getElementById('pd-fee-paid').textContent='₹'+fmt(paid);document.getElementById('pd-fee-balance').textContent='₹'+fmt(balance);const hist=document.getElementById('pd-fee-history');if(!payments||payments.length===0){hist.innerHTML='<div class="empty">अजून payment नाही</div>';return;}hist.innerHTML=[...payments].reverse().map(p=>`<div class="payment-row"><div><div class="payment-amount">₹${fmt(p.amount)}</div><div class="payment-date">${String(p.date).substring(0,10)}${p.note?' • '+p.note:''}</div></div></div>`).join('');}
+function filterAttendance(filter,el){attFilter=filter;document.querySelectorAll('#pd-attendance .filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderParentAttendance(filter);}
+function renderParentAttendance(filter){let records=parentData.attendance||[];const now=new Date();if(filter==='month')records=records.filter(r=>{const d=new Date(r.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});else if(filter==='prev'){const prev=new Date(now.getFullYear(),now.getMonth()-1,1);records=records.filter(r=>{const d=new Date(r.date);return d.getMonth()===prev.getMonth()&&d.getFullYear()===prev.getFullYear();});}records=[...records].sort((a,b)=>new Date(b.date)-new Date(a.date));const present=records.filter(r=>r.status==='Present').length,absent=records.length-present,pct=records.length>0?Math.round((present/records.length)*100):0;document.getElementById('pd-att-present').textContent=present;document.getElementById('pd-att-absent').textContent=absent;document.getElementById('pd-att-pct').textContent=pct+'%';document.getElementById('pd-att-bar').style.width=pct+'%';document.getElementById('pd-att-list').innerHTML=records.map(r=>`<div class="detail-card" style="margin-bottom:8px;"><div class="detail-card-body"><div style="display:flex;justify-content:space-between;font-size:14px;"><span>${String(r.date).substring(0,10)}</span><span style="color:${r.status==='Present'?'var(--green)':'var(--accent)'};font-weight:700;">${r.status==='Present'?'✅ Present':'❌ Absent'}</span></div></div></div>`).join('')||'<div class="empty">या period मध्ये record नाही</div>';}
+function renderParentHomework(){const records=[...(parentData.homework||[])].sort((a,b)=>new Date(b.date)-new Date(a.date)),done=records.filter(r=>r.status==='Done').length,late=records.filter(r=>r.status==='Late').length,nd=records.filter(r=>r.status==='Not Done').length,total=records.length,pct=total>0?Math.round(((done+late)/total)*100):0;document.getElementById('pd-hw-done').textContent=done;document.getElementById('pd-hw-late').textContent=late;document.getElementById('pd-hw-nd').textContent=nd;document.getElementById('pd-hw-pct').textContent=pct+'%';document.getElementById('pd-hw-bar').style.width=pct+'%';document.getElementById('pd-hw-list').innerHTML=records.map(r=>`<div class="detail-card" style="margin-bottom:8px;"><div class="detail-card-body"><div style="display:flex;justify-content:space-between;font-size:13px;"><div><div style="font-weight:700;">${r.subject} — ${r.topic}</div><div style="color:var(--muted);font-size:11px;">${String(r.date).substring(0,10)}</div></div><span style="font-weight:700;color:${r.status==='Done'?'var(--green)':r.status==='Late'?'var(--accent2)':'var(--accent)'}">${r.status==='Done'?'✅':r.status==='Late'?'⏰':'❌'} ${r.status}</span></div></div></div>`).join('')||'<div class="empty">अजून record नाही</div>';}
+function renderParentWorksheet(){const records=[...(parentData.worksheet||[])].sort((a,b)=>new Date(b.date)-new Date(a.date)),done=records.filter(r=>r.status==='Done').length,late=records.filter(r=>r.status==='Late').length,nd=records.filter(r=>r.status==='Not Done').length,total=records.length,pct=total>0?Math.round(((done+late)/total)*100):0;document.getElementById('pd-ws-done').textContent=done;document.getElementById('pd-ws-late').textContent=late;document.getElementById('pd-ws-nd').textContent=nd;document.getElementById('pd-ws-pct').textContent=pct+'%';document.getElementById('pd-ws-bar').style.width=pct+'%';document.getElementById('pd-ws-list').innerHTML=records.map(r=>`<div class="detail-card" style="margin-bottom:8px;"><div class="detail-card-body"><div style="display:flex;justify-content:space-between;font-size:13px;"><div><div style="font-weight:700;">${r.subject} — ${r.topic}</div><div style="color:var(--muted);font-size:11px;">${String(r.date).substring(0,10)}</div></div><span style="font-weight:700;color:${r.status==='Done'?'var(--green)':r.status==='Late'?'var(--accent2)':'var(--accent)'}">${r.status==='Done'?'✅':r.status==='Late'?'⏰':'❌'} ${r.status}</span></div></div></div>`).join('')||'<div class="empty">अजून record नाही</div>';}
+function renderParentTest(){const records=[...(parentData.tests||[])].sort((a,b)=>new Date(b.date)-new Date(a.date)),appeared=records.filter(r=>r.status==='Present').length,absent=records.length-appeared,attPct=records.length>0?Math.round((appeared/records.length)*100):0,withMarks=records.filter(r=>r.status==='Present'&&r.marks!==''&&r.outOf>0),avgPct=withMarks.length>0?Math.round(withMarks.reduce((s,r)=>s+(Number(r.marks)/Number(r.outOf)*100),0)/withMarks.length):0;document.getElementById('pd-test-appeared').textContent=appeared;document.getElementById('pd-test-absent').textContent=absent;document.getElementById('pd-test-att-pct').textContent=attPct+'%';document.getElementById('pd-test-att-bar').style.width=attPct+'%';document.getElementById('pd-test-avg-pct').textContent=avgPct+'%';document.getElementById('pd-test-avg-bar').style.width=avgPct+'%';document.getElementById('pd-test-list').innerHTML=records.map(r=>`<div class="detail-card" style="margin-bottom:8px;"><div class="detail-card-body"><div style="display:flex;justify-content:space-between;font-size:13px;"><div><div style="font-weight:700;">${r.subject} — ${r.topic}</div><div style="color:var(--muted);font-size:11px;">${String(r.date).substring(0,10)}</div></div><div style="text-align:right;"><div style="font-weight:700;color:${r.status==='Present'?'var(--green)':'var(--accent)'}">${r.status==='Present'?'✅':'❌'}</div><div style="font-size:13px;font-weight:700;color:var(--accent2);">${r.status==='Present'&&r.marks!==''?r.marks+'/'+r.outOf:'—'}</div></div></div></div></div>`).join('')||'<div class="empty">अजून test नाही</div>';}
+function renderParentReport(){const st=parentData.student||{};document.getElementById('rpt-name').textContent=st.name||'—';document.getElementById('rpt-info').textContent=(st.rollNo||'')+' • Class '+(st.cls||'');const att=parentData.attendance||[],hw=parentData.homework||[],ws=parentData.worksheet||[],tests=parentData.tests||[];const attPct=att.length>0?Math.round((att.filter(r=>r.status==='Present').length/att.length)*100):0,hwPct=hw.length>0?Math.round(((hw.filter(r=>r.status==='Done').length+hw.filter(r=>r.status==='Late').length)/hw.length)*100):0,wsPct=ws.length>0?Math.round(((ws.filter(r=>r.status==='Done').length+ws.filter(r=>r.status==='Late').length)/ws.length)*100):0,withM=tests.filter(r=>r.status==='Present'&&r.marks!==''&&r.outOf>0),testPct=withM.length>0?Math.round(withM.reduce((s,r)=>s+(Number(r.marks)/Number(r.outOf)*100),0)/withM.length):0,overall=Math.round((attPct+hwPct+wsPct+testPct)/4);document.getElementById('rpt-att-pct').textContent=attPct+'%';document.getElementById('rpt-hw-pct').textContent=hwPct+'%';document.getElementById('rpt-ws-pct').textContent=wsPct+'%';document.getElementById('rpt-test-pct').textContent=testPct+'%';document.getElementById('rpt-att-bar').style.width=attPct+'%';document.getElementById('rpt-hw-bar').style.width=hwPct+'%';document.getElementById('rpt-ws-bar').style.width=wsPct+'%';document.getElementById('rpt-test-bar').style.width=testPct+'%';document.getElementById('rpt-overall').textContent=overall>=80?'🟢 Excellent':overall>=60?'🟡 Good':'🔴 Needs Effort';}
+
+// INIT
+const today=new Date().toISOString().split('T')[0];
+document.getElementById('admDate').value=today;
+document.getElementById('payDate').value=today;
+document.getElementById('attDate').value=today;
+document.getElementById('hwDate').value=today;
+document.getElementById('wsDate').value=today;
+document.getElementById('testDate').value=today;
 loadFeeMaster();
 </script>
 </body>
