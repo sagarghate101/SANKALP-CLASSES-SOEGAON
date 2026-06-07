@@ -801,6 +801,10 @@
       </div>
     </div>
     <div class="field">
+      <label>Parent Password *</label>
+      <input type="text" id="parentPassword" placeholder="उदा. 1234 (Parent login साठी)">
+    </div>
+    <div class="field">
       <label>Admission Date</label>
       <input type="date" id="admDate">
     </div>
@@ -1621,6 +1625,7 @@ async function submitAdmission() {
     subjects: Object.keys(selectedSubjects).join(', '),
     originalFee, adjustedFee: adjusted>0?adjusted:'',
     finalFee, adjustReason: reason, reasonNote: note, admDate: date
+    parentPassword: document.getElementById('parentPassword').value,
   };
 
   const params = new URLSearchParams({ data: JSON.stringify(payload) });
