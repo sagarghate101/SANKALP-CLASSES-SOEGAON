@@ -289,6 +289,7 @@ body{background:var(--bg);color:var(--text);font-family:'Baloo 2','Noto Sans Dev
   <button class="nav-btn" onclick="showPage('classes')" id="nav-classes"><span class="icon">🏫</span>Classes</button>
   <button class="nav-btn" onclick="showPage('admission')" id="nav-admission"><span class="icon">➕</span>Admission</button>
   <button class="nav-btn" onclick="showPage('activity')" id="nav-activity"><span class="icon">📋</span>Activity</button>
+  <button class="nav-btn" onclick="showPage('settings')" id="nav-settings"><span class="icon">⚙️</span>Settings</button>
 </div>
 
 <!-- PAGE 1: DASHBOARD -->
@@ -387,6 +388,35 @@ body{background:var(--bg);color:var(--text);font-family:'Baloo 2','Noto Sans Dev
       <div id="successSummary"></div>
       <button class="btn btn-primary" onclick="newAdmission()" style="margin-top:16px">+ नवीन Admission</button>
       <button class="btn btn-secondary" onclick="showPage('dashboard');loadData();" style="margin-top:4px">📊 Dashboard बघा</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 6: SETTINGS -->
+<div class="page" id="page-settings">
+  <div class="sec-title"><span>⚙️</span> Fee Master</div>
+  <div id="fee-master-list"></div>
+  <div class="detail-card" style="margin-top:16px;">
+    <div class="detail-card-header">➕ नवीन Fee Add करा</div>
+    <div class="detail-card-body">
+      <div class="field"><label>Class</label>
+        <select id="new-fee-cls" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;-webkit-appearance:none;">
+          <option value="">-- निवडा --</option>
+          <option value="1">1st</option><option value="2">2nd</option><option value="3">3rd</option><option value="4">4th</option><option value="5">5th</option><option value="6">6th</option><option value="7">7th</option><option value="8">8th</option><option value="9">9th</option><option value="10">10th</option><option value="11">11th Science</option><option value="12">12th Science</option>
+        </select>
+      </div>
+      <div class="field"><label>Medium</label>
+        <select id="new-fee-medium" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;-webkit-appearance:none;">
+          <option value="Semi">Semi</option><option value="Marathi">Marathi</option><option value="NA">NA (11th/12th)</option>
+        </select>
+      </div>
+      <div class="field"><label>Subject</label>
+        <input type="text" id="new-fee-subject" placeholder="उदा. Mathematics" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;">
+      </div>
+      <div class="field"><label>Fee (₹)</label>
+        <input type="number" id="new-fee-amount" placeholder="उदा. 2000" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;">
+      </div>
+      <button class="btn btn-green" onclick="addNewFee()">✅ Fee Save करा</button>
     </div>
   </div>
 </div>
@@ -541,7 +571,7 @@ async function addPayment(){const amount=parseInt(document.getElementById('payAm
 
 function getPaid(rollNo){return allPayments.filter(p=>p.rollNo===rollNo).reduce((s,p)=>s+(p.amount||0),0);}
 function fmt(n){if(n>=100000)return(n/100000).toFixed(1)+'L';if(n>=1000)return(n/1000).toFixed(1)+'k';return n.toLocaleString('en-IN');}
-function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');document.getElementById('nav-'+name).classList.add('active');window.scrollTo(0,0);}
+function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');document.getElementById('nav-'+name).classList.add('active');window.scrollTo(0,0);if (name === 'settings') loadFeeMasterSettings();}
 
 // ADMISSION
 async function loadFeeMaster(){try{const res=await fetch(SCRIPT_URL),data=await res.json();if(data&&Object.keys(data).length>0)FEE_MASTER=data;else throw new Error('empty');}catch(e){FEE_MASTER=FEE_DEMO;}}
@@ -593,6 +623,111 @@ function renderParentHomework(){const records=[...(parentData.homework||[])].sor
 function renderParentWorksheet(){const records=[...(parentData.worksheet||[])].sort((a,b)=>new Date(b.date)-new Date(a.date)),done=records.filter(r=>r.status==='Done').length,late=records.filter(r=>r.status==='Late').length,nd=records.filter(r=>r.status==='Not Done').length,total=records.length,pct=total>0?Math.round(((done+late)/total)*100):0;document.getElementById('pd-ws-done').textContent=done;document.getElementById('pd-ws-late').textContent=late;document.getElementById('pd-ws-nd').textContent=nd;document.getElementById('pd-ws-pct').textContent=pct+'%';document.getElementById('pd-ws-bar').style.width=pct+'%';document.getElementById('pd-ws-list').innerHTML=records.map(r=>`<div class="detail-card" style="margin-bottom:8px;"><div class="detail-card-body"><div style="display:flex;justify-content:space-between;font-size:13px;"><div><div style="font-weight:700;">${r.subject} — ${r.topic}</div><div style="color:var(--muted);font-size:11px;">${String(r.date).substring(0,10)}</div></div><span style="font-weight:700;color:${r.status==='Done'?'var(--green)':r.status==='Late'?'var(--accent2)':'var(--accent)'}">${r.status==='Done'?'✅':r.status==='Late'?'⏰':'❌'} ${r.status}</span></div></div></div>`).join('')||'<div class="empty">अजून record नाही</div>';}
 function renderParentTest(){const records=[...(parentData.tests||[])].sort((a,b)=>new Date(b.date)-new Date(a.date)),appeared=records.filter(r=>r.status==='Present').length,absent=records.length-appeared,attPct=records.length>0?Math.round((appeared/records.length)*100):0,withMarks=records.filter(r=>r.status==='Present'&&r.marks!==''&&r.outOf>0),avgPct=withMarks.length>0?Math.round(withMarks.reduce((s,r)=>s+(Number(r.marks)/Number(r.outOf)*100),0)/withMarks.length):0;document.getElementById('pd-test-appeared').textContent=appeared;document.getElementById('pd-test-absent').textContent=absent;document.getElementById('pd-test-att-pct').textContent=attPct+'%';document.getElementById('pd-test-att-bar').style.width=attPct+'%';document.getElementById('pd-test-avg-pct').textContent=avgPct+'%';document.getElementById('pd-test-avg-bar').style.width=avgPct+'%';document.getElementById('pd-test-list').innerHTML=records.map(r=>`<div class="detail-card" style="margin-bottom:8px;"><div class="detail-card-body"><div style="display:flex;justify-content:space-between;font-size:13px;"><div><div style="font-weight:700;">${r.subject} — ${r.topic}</div><div style="color:var(--muted);font-size:11px;">${String(r.date).substring(0,10)}</div></div><div style="text-align:right;"><div style="font-weight:700;color:${r.status==='Present'?'var(--green)':'var(--accent)'}">${r.status==='Present'?'✅':'❌'}</div><div style="font-size:13px;font-weight:700;color:var(--accent2);">${r.status==='Present'&&r.marks!==''?r.marks+'/'+r.outOf:'—'}</div></div></div></div></div>`).join('')||'<div class="empty">अजून test नाही</div>';}
 function renderParentReport(){const st=parentData.student||{};document.getElementById('rpt-name').textContent=st.name||'—';document.getElementById('rpt-info').textContent=(st.rollNo||'')+' • Class '+(st.cls||'');const att=parentData.attendance||[],hw=parentData.homework||[],ws=parentData.worksheet||[],tests=parentData.tests||[];const attPct=att.length>0?Math.round((att.filter(r=>r.status==='Present').length/att.length)*100):0,hwPct=hw.length>0?Math.round(((hw.filter(r=>r.status==='Done').length+hw.filter(r=>r.status==='Late').length)/hw.length)*100):0,wsPct=ws.length>0?Math.round(((ws.filter(r=>r.status==='Done').length+ws.filter(r=>r.status==='Late').length)/ws.length)*100):0,withM=tests.filter(r=>r.status==='Present'&&r.marks!==''&&r.outOf>0),testPct=withM.length>0?Math.round(withM.reduce((s,r)=>s+(Number(r.marks)/Number(r.outOf)*100),0)/withM.length):0,overall=Math.round((attPct+hwPct+wsPct+testPct)/4);document.getElementById('rpt-att-pct').textContent=attPct+'%';document.getElementById('rpt-hw-pct').textContent=hwPct+'%';document.getElementById('rpt-ws-pct').textContent=wsPct+'%';document.getElementById('rpt-test-pct').textContent=testPct+'%';document.getElementById('rpt-att-bar').style.width=attPct+'%';document.getElementById('rpt-hw-bar').style.width=hwPct+'%';document.getElementById('rpt-ws-bar').style.width=wsPct+'%';document.getElementById('rpt-test-bar').style.width=testPct+'%';document.getElementById('rpt-overall').textContent=overall>=80?'🟢 Excellent':overall>=60?'🟡 Good':'🔴 Needs Effort';}
+
+// SETTINGS — FEE MASTER
+function loadFeeMasterSettings() {
+  const cbName = 'fmCb_' + Date.now();
+  const script = document.createElement('script');
+  let done = false;
+  const timer = setTimeout(() => { if(done)return; done=true; cleanup(); }, 10000);
+  function cleanup() { clearTimeout(timer); delete window[cbName]; if(script.parentNode)script.parentNode.removeChild(script); }
+  window[cbName] = function(data) {
+    if(done)return; done=true; cleanup();
+    FEE_MASTER = data;
+    renderFeeMasterList();
+  };
+  script.onerror = () => {};
+  script.src = SCRIPT_URL + '?callback=' + cbName;
+  document.head.appendChild(script);
+}
+
+function renderFeeMasterList() {
+  const list = document.getElementById('fee-master-list');
+  let html = '';
+  Object.entries(FEE_MASTER).sort().forEach(([cls, mediums]) => {
+    Object.entries(mediums).forEach(([medium, subjects]) => {
+      Object.entries(subjects).forEach(([subject, fee]) => {
+        html += `<div class="detail-card" style="margin-bottom:8px;">
+          <div class="detail-card-body">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="font-size:14px;font-weight:700;">Class ${cls} — ${medium}</div>
+                <div style="font-size:13px;color:var(--muted);">${subject}</div>
+              </div>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="number" value="${fee}" id="fee-${cls}-${medium}-${subject}"
+                  style="width:80px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:6px 8px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:14px;outline:none;text-align:center;">
+                <button onclick="updateFee('${cls}','${medium}','${subject}')"
+                  style="background:var(--green);color:#0f0f1a;border:none;border-radius:8px;padding:6px 12px;font-family:'Baloo 2',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">Save</button>
+                <button onclick="deleteFee('${cls}','${medium}','${subject}')"
+                  style="background:rgba(233,69,96,.15);color:var(--accent);border:1px solid var(--accent);border-radius:8px;padding:6px 12px;font-family:'Baloo 2',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">❌</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      });
+    });
+  });
+  list.innerHTML = html || '<div class="empty">Fee Master रिकामा आहे</div>';
+}
+
+function updateFee(cls, medium, subject) {
+  const fee = document.getElementById(`fee-${cls}-${medium}-${subject}`).value;
+  if (!fee) { alert('Fee टाका'); return; }
+  const cbName = 'ufCb_' + Date.now();
+  const script = document.createElement('script');
+  let done = false;
+  const timer = setTimeout(() => { if(done)return; done=true; cleanup(); alert('❌ Timeout'); }, 10000);
+  function cleanup() { clearTimeout(timer); delete window[cbName]; if(script.parentNode)script.parentNode.removeChild(script); }
+  window[cbName] = function(data) {
+    if(done)return; done=true; cleanup();
+    if(data.status==='success') { alert('✅ Fee update झाली!'); loadFeeMasterSettings(); }
+  };
+  script.onerror = () => {};
+  script.src = SCRIPT_URL + '?action=saveFee&cls='+cls+'&medium='+medium+'&subject='+encodeURIComponent(subject)+'&fee='+fee+'&callback='+cbName;
+  document.head.appendChild(script);
+}
+
+function deleteFee(cls, medium, subject) {
+  if (!confirm(`${subject} (Class ${cls} ${medium}) delete करायचे आहे का?`)) return;
+  const cbName = 'dfCb_' + Date.now();
+  const script = document.createElement('script');
+  let done = false;
+  const timer = setTimeout(() => { if(done)return; done=true; cleanup(); }, 10000);
+  function cleanup() { clearTimeout(timer); delete window[cbName]; if(script.parentNode)script.parentNode.removeChild(script); }
+  window[cbName] = function(data) {
+    if(done)return; done=true; cleanup();
+    if(data.status==='success') { alert('✅ Delete झाले!'); loadFeeMasterSettings(); }
+  };
+  script.onerror = () => {};
+  script.src = SCRIPT_URL + '?action=deleteFee&cls='+cls+'&medium='+medium+'&subject='+encodeURIComponent(subject)+'&callback='+cbName;
+  document.head.appendChild(script);
+}
+
+function addNewFee() {
+  const cls = document.getElementById('new-fee-cls').value;
+  const medium = document.getElementById('new-fee-medium').value;
+  const subject = document.getElementById('new-fee-subject').value.trim();
+  const fee = document.getElementById('new-fee-amount').value;
+  if (!cls || !subject || !fee) { alert('सर्व fields भरा'); return; }
+  const cbName = 'afCb_' + Date.now();
+  const script = document.createElement('script');
+  let done = false;
+  const timer = setTimeout(() => { if(done)return; done=true; cleanup(); }, 10000);
+  function cleanup() { clearTimeout(timer); delete window[cbName]; if(script.parentNode)script.parentNode.removeChild(script); }
+  window[cbName] = function(data) {
+    if(done)return; done=true; cleanup();
+    if(data.status==='success') {
+      alert('✅ नवीन Fee add झाली!');
+      document.getElementById('new-fee-subject').value = '';
+      document.getElementById('new-fee-amount').value = '';
+      loadFeeMasterSettings();
+    }
+  };
+  script.onerror = () => {};
+  script.src = SCRIPT_URL + '?action=saveFee&cls='+cls+'&medium='+medium+'&subject='+encodeURIComponent(subject)+'&fee='+fee+'&callback='+cbName;
+  document.head.appendChild(script);
+}
 
 // INIT
 const today=new Date().toISOString().split('T')[0];
