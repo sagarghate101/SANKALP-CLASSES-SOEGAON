@@ -533,10 +533,37 @@ body{background:var(--bg);color:var(--text);font-family:'Baloo 2','Noto Sans Dev
       <button class="btn btn-green" onclick="addPayment()">✅ Payment Save करा</button>
     </div>
     <div class="detail-card"><div class="detail-card-header">💰 Payment History</div><div class="detail-card-body" id="modal-payments"></div></div>
+    <button class="btn btn-primary" onclick="openEditStudent()" style="margin-top:4px">✏️ Student Edit करा</button>
+    <button class="btn btn-secondary" onclick="inactiveStudent()" style="margin-top:4px;background:rgba(233,69,96,.15);color:var(--accent);border:1px solid var(--accent)">🚫 Inactive करा</button>
     <button class="btn btn-secondary" onclick="closeModal()">← बंद करा</button>
   </div>
 </div>
-
+<!-- EDIT STUDENT MODAL -->
+<div class="modal-overlay" id="editStudentModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✏️ Student Edit करा</div>
+    <div class="modal-sub" id="edit-modal-sub">—</div>
+    <div class="field"><label>Contact Number</label>
+      <input type="tel" id="edit-contact" maxlength="10" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;">
+    </div>
+    <div class="field"><label>Medium</label>
+      <select id="edit-medium" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;-webkit-appearance:none;">
+        <option value="Semi">Semi</option>
+        <option value="Marathi">Marathi</option>
+        <option value="NA">NA (11th/12th)</option>
+      </select>
+    </div>
+    <div class="field"><label>Subjects (comma separated)</label>
+      <input type="text" id="edit-subjects" placeholder="Mathematics, Science" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;">
+    </div>
+    <div class="field"><label>Final Fee (₹)</label>
+      <input type="number" id="edit-finalfee" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;">
+    </div>
+    <button class="btn btn-green" onclick="saveEditStudent()">✅ Save करा</button>
+    <button class="btn btn-secondary" onclick="closeEditModal()">← बंद करा</button>
+  </div>
+</div>
 <script>
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbznCMImMCifV8RBAgavb2F6M9ya-wB-9QlFVhBwn3M42nMM_a6EMlGP1xKh-RiynJ5ALg/exec';
 const ADMIN_USER='admin',ADMIN_PASS='sankalp@2024';
@@ -726,6 +753,83 @@ function addNewFee() {
   };
   script.onerror = () => {};
   script.src = SCRIPT_URL + '?action=saveFee&cls='+cls+'&medium='+medium+'&subject='+encodeURIComponent(subject)+'&fee='+fee+'&callback='+cbName;
+  document.head.appendChild(script);
+}
+
+// STUDENT EDIT
+function openEditStudent() {
+  if (!currentStudent) return;
+  document.getElementById('edit-modal-sub').textContent = currentStudent.name + ' • ' + currentStudent.rollNo;
+  document.getElementById('edit-contact').value  = currentStudent.contact || '';
+  document.getElementById('edit-medium').value   = currentStudent.medium  || 'Semi';
+  document.getElementById('edit-subjects').value = currentStudent.subjects || '';
+  document.getElementById('edit-finalfee').value = currentStudent.finalFee || '';
+  document.getElementById('editStudentModal').classList.add('open');
+}
+
+function closeEditModal() {
+  document.getElementById('editStudentModal').classList.remove('open');
+}
+
+function saveEditStudent() {
+  const contact  = document.getElementById('edit-contact').value.trim();
+  const medium   = document.getElementById('edit-medium').value;
+  const subjects = document.getElementById('edit-subjects').value.trim();
+  const finalFee = document.getElementById('edit-finalfee').value;
+  if (!contact || !subjects || !finalFee) { alert('सर्व fields भरा'); return; }
+
+  const cbName = 'esCb_' + Date.now();
+  const script = document.createElement('script');
+  let done = false;
+  const timer = setTimeout(() => { if(done)return; done=true; cleanup(); alert('❌ Timeout'); }, 10000);
+  function cleanup() { clearTimeout(timer); delete window[cbName]; if(script.parentNode)script.parentNode.removeChild(script); }
+  window[cbName] = function(data) {
+    if(done)return; done=true; cleanup();
+    if(data.status==='success') {
+      alert('✅ Student update झाला!');
+      currentStudent.contact  = contact;
+      currentStudent.medium   = medium;
+      currentStudent.subjects = subjects;
+      currentStudent.finalFee = Number(finalFee);
+      closeEditModal();
+      closeModal();
+      renderDashboard();
+      renderStudents();
+    }
+  };
+  script.onerror = () => {};
+  script.src = SCRIPT_URL + '?action=updateStudent&rollNo=' + currentStudent.rollNo
+    + '&contact=' + contact
+    + '&medium=' + medium
+    + '&subjects=' + encodeURIComponent(subjects)
+    + '&finalFee=' + finalFee
+    + '&callback=' + cbName;
+  document.head.appendChild(script);
+}
+
+function inactiveStudent() {
+  if (!currentStudent) return;
+  if (!confirm(currentStudent.name + ' ला Inactive करायचे आहे का?')) return;
+
+  const cbName = 'isCb_' + Date.now();
+  const script = document.createElement('script');
+  let done = false;
+  const timer = setTimeout(() => { if(done)return; done=true; cleanup(); }, 10000);
+  function cleanup() { clearTimeout(timer); delete window[cbName]; if(script.parentNode)script.parentNode.removeChild(script); }
+  window[cbName] = function(data) {
+    if(done)return; done=true; cleanup();
+    if(data.status==='success') {
+      alert('✅ ' + currentStudent.name + ' Inactive झाला!');
+      currentStudent.status = 'Inactive';
+      allStudents = allStudents.filter(st => st.rollNo !== currentStudent.rollNo);
+      closeModal();
+      renderDashboard();
+      renderStudents();
+      renderClasses();
+    }
+  };
+  script.onerror = () => {};
+  script.src = SCRIPT_URL + '?action=updateStudent&rollNo=' + currentStudent.rollNo + '&status=Inactive&callback=' + cbName;
   document.head.appendChild(script);
 }
 
