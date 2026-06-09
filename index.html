@@ -153,7 +153,7 @@ body{background:var(--bg);color:var(--text);font-family:'Baloo 2','Noto Sans Dev
   <div id="admin-login" style="width:100%;max-width:360px;">
     <div class="field"><label>Username</label><input type="text" id="adminUser" placeholder="admin"></div>
     <div class="field"><label>Password</label><input type="password" id="adminPass" placeholder="••••••"></div>
-    <button class="btn btn-primary" onclick="adminLogin()">🔐 Admin Login</button>
+    <button class="btn btn-primary" onclick="doLogin()">🔐 Login</button>
     <button class="btn btn-secondary" onclick="switchLoginMode('parent')" style="margin-top:8px;">👨‍👩‍👧 Parent Login</button>
   </div>
   <div id="parent-login" style="width:100%;max-width:360px;display:none;">
@@ -395,6 +395,29 @@ body{background:var(--bg);color:var(--text);font-family:'Baloo 2','Noto Sans Dev
 
 <!-- PAGE 6: SETTINGS -->
 <div class="page" id="page-settings">
+  <div class="sec-title"><span>👥</span> User Management</div>
+<div id="users-list" style="margin-bottom:12px;"></div>
+<div class="detail-card" style="margin-bottom:16px;">
+  <div class="detail-card-header">➕ नवीन User Add करा</div>
+  <div class="detail-card-body">
+    <div class="field"><label>Username</label>
+      <input type="text" id="new-user-username" placeholder="उदा. amol" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;">
+    </div>
+    <div class="field"><label>Password</label>
+      <input type="text" id="new-user-password" placeholder="उदा. 1234" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;">
+    </div>
+    <div class="field"><label>नाव</label>
+      <input type="text" id="new-user-name" placeholder="उदा. Amol Dhulsandhir" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;">
+    </div>
+    <div class="field"><label>Role</label>
+      <select id="new-user-role" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;-webkit-appearance:none;">
+        <option value="teacher">Teacher</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+    <button class="btn btn-green" onclick="addNewUser()">✅ User Save करा</button>
+  </div>
+</div>
   <div class="sec-title"><span>⚙️</span> Fee Master</div>
   <div id="fee-master-list"></div>
   <div class="detail-card" style="margin-top:16px;">
@@ -567,8 +590,7 @@ body{background:var(--bg);color:var(--text);font-family:'Baloo 2','Noto Sans Dev
 </div>
 <script>
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbznCMImMCifV8RBAgavb2F6M9ya-wB-9QlFVhBwn3M42nMM_a6EMlGP1xKh-RiynJ5ALg/exec';
-const ADMIN_USER='admin',ADMIN_PASS='sankalp@2024';
-let currentRole='',parentStudents=[],parentData={},attFilter='month';
+let currentRole='',currentUser={},parentStudents=[],parentData={},attFilter='month';
 let allStudents=[],allPayments=[],currentStudent=null,currentFilter='all';
 let attStatus={},hwStatus={},wsStatus={},testStatus={};
 let FEE_MASTER={},selectedSubjects={},originalFee=0;
@@ -576,9 +598,70 @@ let FEE_MASTER={},selectedSubjects={},originalFee=0;
 const FEE_DEMO={"1":{"Semi":{"Mathematics":800,"English":700,"Science":700},"Marathi":{"Mathematics":700,"English":600}},"2":{"Semi":{"Mathematics":800,"English":700,"Science":700},"Marathi":{"Mathematics":700,"English":600}},"3":{"Semi":{"Mathematics":900,"English":750,"Science":750},"Marathi":{"Mathematics":800,"English":650}},"4":{"Semi":{"Mathematics":900,"English":750,"Science":750},"Marathi":{"Mathematics":800,"English":650}},"5":{"Semi":{"Mathematics":1000,"English":800,"Science":800},"Marathi":{"Mathematics":900,"English":700}},"6":{"Semi":{"Mathematics":1000,"English":800,"Science":800},"Marathi":{"Mathematics":900,"English":700}},"7":{"Semi":{"Mathematics":1100,"English":850,"Science":850},"Marathi":{"Mathematics":1000,"English":750}},"8":{"Semi":{"Mathematics":1500,"English":1200,"Science":1400},"Marathi":{"Mathematics":1300,"English":1000}},"9":{"Semi":{"Mathematics":1600,"English":1200,"Science":1500},"Marathi":{"Mathematics":1400,"English":1000}},"10":{"Semi":{"Mathematics":2000,"English":1500,"Science":1800},"Marathi":{"Mathematics":1800,"English":1300}},"11":{"NA":{"Mathematics":3000,"Physics":3000,"Chemistry":2800,"Biology":2500}},"12":{"NA":{"Mathematics":3500,"Physics":3500,"Chemistry":3000,"Biology":2800}}};
 
 // LOGIN
-function switchLoginMode(m){document.getElementById('admin-login').style.display=m==='admin'?'block':'none';document.getElementById('parent-login').style.display=m==='parent'?'block':'none';document.getElementById('login-error').style.display='none';}
-function adminLogin(){const u=document.getElementById('adminUser').value.trim(),p=document.getElementById('adminPass').value.trim();if(u===ADMIN_USER&&p===ADMIN_PASS){currentRole='admin';document.getElementById('login-page').style.display='none';loadData();}else{document.getElementById('login-error').style.display='block';}}
-function parentLogin(){const contact=document.getElementById('parentContact').value.trim(),pass=document.getElementById('parentPass').value.trim();if(!contact||!pass){alert('Contact आणि Password टाका');return;}document.getElementById('login-loading').style.display='block';document.getElementById('login-error').style.display='none';const cbName='loginCb_'+Date.now(),script=document.createElement('script');let done=false;const timer=setTimeout(()=>{if(done)return;done=true;cleanup();document.getElementById('login-loading').style.display='none';document.getElementById('login-error').style.display='block';},15000);function cleanup(){clearTimeout(timer);delete window[cbName];if(script.parentNode)script.parentNode.removeChild(script);}window[cbName]=function(data){if(done)return;done=true;cleanup();document.getElementById('login-loading').style.display='none';if(data.students&&data.students.length>0){currentRole='parent';parentStudents=data.students;document.getElementById('login-page').style.display='none';showParentDashboard();}else{document.getElementById('login-error').style.display='block';}};script.onerror=()=>{};script.src=SCRIPT_URL+'?action=login&contact='+contact+'&password='+encodeURIComponent(pass)+'&callback='+cbName;document.head.appendChild(script);}
+function switchLoginMode(m){
+  document.getElementById('admin-login').style.display=m==='admin'?'block':'none';
+  document.getElementById('parent-login').style.display=m==='parent'?'block':'none';
+  document.getElementById('login-error').style.display='none';
+}
+
+function doLogin(){
+  const username=document.getElementById('adminUser').value.trim();
+  const password=document.getElementById('adminPass').value.trim();
+  if(!username||!password){alert('Username आणि Password टाका');return;}
+  document.getElementById('login-loading').style.display='block';
+  document.getElementById('login-error').style.display='none';
+  const cbName='loginCb_'+Date.now(),script=document.createElement('script');
+  let done=false;
+  const timer=setTimeout(()=>{if(done)return;done=true;cleanup();document.getElementById('login-loading').style.display='none';document.getElementById('login-error').style.display='block';},15000);
+  function cleanup(){clearTimeout(timer);delete window[cbName];if(script.parentNode)script.parentNode.removeChild(script);}
+  window[cbName]=function(data){
+    if(done)return;done=true;cleanup();
+    document.getElementById('login-loading').style.display='none';
+    if(data.error){document.getElementById('login-error').style.display='block';return;}
+    if(data.role==='admin'||data.role==='teacher'){
+      currentRole=data.role;
+      currentUser={username,name:data.name,role:data.role};
+      document.getElementById('login-page').style.display='none';
+      loadData();
+    } else if(data.role==='parent'&&data.students){
+      currentRole='parent';
+      parentStudents=data.students;
+      document.getElementById('login-page').style.display='none';
+      showParentDashboard();
+    } else {
+      document.getElementById('login-error').style.display='block';
+    }
+  };
+  script.onerror=()=>{};
+  script.src=SCRIPT_URL+'?action=login&username='+encodeURIComponent(username)+'&password='+encodeURIComponent(password)+'&callback='+cbName;
+  document.head.appendChild(script);
+}
+
+function parentLogin(){
+  const contact=document.getElementById('parentContact').value.trim();
+  const pass=document.getElementById('parentPass').value.trim();
+  if(!contact||!pass){alert('Contact आणि Password टाका');return;}
+  document.getElementById('login-loading').style.display='block';
+  document.getElementById('login-error').style.display='none';
+  const cbName='loginCb_'+Date.now(),script=document.createElement('script');
+  let done=false;
+  const timer=setTimeout(()=>{if(done)return;done=true;cleanup();document.getElementById('login-loading').style.display='none';document.getElementById('login-error').style.display='block';},15000);
+  function cleanup(){clearTimeout(timer);delete window[cbName];if(script.parentNode)script.parentNode.removeChild(script);}
+  window[cbName]=function(data){
+    if(done)return;done=true;cleanup();
+    document.getElementById('login-loading').style.display='none';
+    if(data.role==='parent'&&data.students&&data.students.length>0){
+      currentRole='parent';parentStudents=data.students;
+      document.getElementById('login-page').style.display='none';
+      showParentDashboard();
+    } else {
+      document.getElementById('login-error').style.display='block';
+    }
+  };
+  script.onerror=()=>{};
+  script.src=SCRIPT_URL+'?action=login&username='+encodeURIComponent(contact)+'&password='+encodeURIComponent(pass)+'&callback='+cbName;
+  document.head.appendChild(script);
+}
 
 // DASHBOARD
 function loadData(){if(currentRole!=='admin')return;document.getElementById('dash-loading').style.display='block';document.getElementById('dash-content').style.display='none';document.getElementById('dash-loading').innerHTML='<span class="spin">⏳</span>Sheet मधून data load होत आहे...';const cbName='sklCb_'+Date.now(),script=document.createElement('script');let done=false;const timer=setTimeout(()=>{if(done)return;done=true;cleanup();document.getElementById('dash-loading').innerHTML='❌ Data load नाही झाला.<br><small style="color:var(--muted)">Internet check करा</small><br><br><button onclick="loadData()" style="padding:10px 20px;background:var(--accent);color:white;border:none;border-radius:10px;font-family:\'Baloo 2\',sans-serif;font-size:14px;cursor:pointer;font-weight:700">🔄 Retry</button>';},15000);function cleanup(){clearTimeout(timer);delete window[cbName];if(script.parentNode)script.parentNode.removeChild(script);}window[cbName]=function(data){if(done)return;done=true;cleanup();allStudents=data.students||[];allPayments=data.payments||[];renderDashboard();renderStudents();renderClasses();initActivityClasses();document.getElementById('lastUpdated').textContent=new Date().toLocaleTimeString('mr-IN');};script.onerror=()=>{};script.src=SCRIPT_URL+'?action=dashboard&callback='+cbName;document.head.appendChild(script);}
@@ -595,11 +678,11 @@ function openStudent(rollNo){currentStudent=allStudents.find(st=>st.rollNo===rol
 function renderPaymentHistory(rollNo){const payments=allPayments.filter(p=>p.rollNo===rollNo),container=document.getElementById('modal-payments');if(payments.length===0){container.innerHTML='<div class="empty">अजून कोणतेही payment नाही</div>';return;}container.innerHTML=payments.map(p=>`<div class="payment-row"><div><div class="payment-amount">₹${fmt(p.amount)}</div><div class="payment-date">${String(p.date).substring(0,10)} ${p.note?'• '+p.note:''}</div></div></div>`).join('');}
 function closeModal(){document.getElementById('studentModal').classList.remove('open');currentStudent=null;}
 
-async function addPayment(){const amount=parseInt(document.getElementById('payAmount').value),date=document.getElementById('payDate').value,note=document.getElementById('payNote').value;if(!amount||amount<=0){alert('Amount टाका');return;}if(!date){alert('Date निवडा');return;}const btn=document.querySelector('#studentModal .btn-green');btn.textContent='⏳ Save करत आहे...';btn.disabled=true;const payload={type:'payment',rollNo:currentStudent.rollNo,studentName:currentStudent.name,amount,date,note};const params=new URLSearchParams({data:JSON.stringify(payload)});try{await fetch(SCRIPT_URL+'?'+params.toString(),{mode:'no-cors'});allPayments.push({rollNo:currentStudent.rollNo,amount,date,note});renderPaymentHistory(currentStudent.rollNo);const paid=getPaid(currentStudent.rollNo),bal=(currentStudent.finalFee||0)-paid;document.getElementById('modal-paid').textContent='₹'+fmt(paid);document.getElementById('modal-balance').textContent='₹'+fmt(bal);document.getElementById('payAmount').value='';document.getElementById('payNote').value='';alert('✅ Payment save झाले!');renderDashboard();renderStudents();}catch(e){alert('❌ Save नाही झाले');}btn.textContent='✅ Payment Save करा';btn.disabled=false;}
+async function addPayment(){const amount=parseInt(document.getElementById('payAmount').value),date=document.getElementById('payDate').value,note=document.getElementById('payNote').value;if(!amount||amount<=0){alert('Amount टाका');return;}if(!date){alert('Date निवडा');return;}const btn=document.querySelector('#studentModal .btn-green');btn.textContent='⏳ Save करत आहे...';btn.disabled=true;const payload={type:'payment',rollNo:currentStudent.rollNo,studentName:currentStudent.name,amount,date,note,collectedBy:currentUser.name||'Admin'};const params=new URLSearchParams({data:JSON.stringify(payload)});try{await fetch(SCRIPT_URL+'?'+params.toString(),{mode:'no-cors'});allPayments.push({rollNo:currentStudent.rollNo,amount,date,note});renderPaymentHistory(currentStudent.rollNo);const paid=getPaid(currentStudent.rollNo),bal=(currentStudent.finalFee||0)-paid;document.getElementById('modal-paid').textContent='₹'+fmt(paid);document.getElementById('modal-balance').textContent='₹'+fmt(bal);document.getElementById('payAmount').value='';document.getElementById('payNote').value='';alert('✅ Payment save झाले!');renderDashboard();renderStudents();}catch(e){alert('❌ Save नाही झाले');}btn.textContent='✅ Payment Save करा';btn.disabled=false;}
 
 function getPaid(rollNo){return allPayments.filter(p=>p.rollNo===rollNo).reduce((s,p)=>s+(p.amount||0),0);}
 function fmt(n){if(n>=100000)return(n/100000).toFixed(1)+'L';if(n>=1000)return(n/1000).toFixed(1)+'k';return n.toLocaleString('en-IN');}
-function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');document.getElementById('nav-'+name).classList.add('active');window.scrollTo(0,0);if (name === 'settings') loadFeeMasterSettings();}
+function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');document.getElementById('nav-'+name).classList.add('active');window.scrollTo(0,0);if (name === 'settings') { loadFeeMasterSettings(); loadUsers(); }}
 
 // ADMISSION
 async function loadFeeMaster(){try{const res=await fetch(SCRIPT_URL),data=await res.json();if(data&&Object.keys(data).length>0)FEE_MASTER=data;else throw new Error('empty');}catch(e){FEE_MASTER=FEE_DEMO;}}
@@ -642,7 +725,7 @@ function renderParentKids(){document.getElementById('parent-students-list').styl
 function showParentStudentsList(){document.getElementById('parent-students-list').style.display='block';document.getElementById('parent-detail').style.display='none';}
 function openParentStudent(rollNo,name,cls){document.getElementById('parent-students-list').style.display='none';document.getElementById('parent-detail').style.display='block';document.getElementById('pd-name').textContent=name;document.getElementById('pd-info').textContent=rollNo+' • Class '+cls;document.getElementById('pd-loading').style.display='block';['fee','attendance','homework','worksheet','test','report'].forEach(t=>document.getElementById('pd-'+t).style.display='none');switchParentTab('fee');const cbName='pdCb_'+Date.now(),script=document.createElement('script');let done=false;const timer=setTimeout(()=>{if(done)return;done=true;cleanup();document.getElementById('pd-loading').innerHTML='❌ Data load नाही झाला';},15000);function cleanup(){clearTimeout(timer);delete window[cbName];if(script.parentNode)script.parentNode.removeChild(script);}window[cbName]=function(data){if(done)return;done=true;cleanup();parentData=data;document.getElementById('pd-loading').style.display='none';const st=data.student||{};document.getElementById('pd-info').textContent=rollNo+' • Class '+cls+(st.medium&&st.medium!=='NA'?' • '+st.medium:'')+(st.subjects?' | '+st.subjects:'');renderParentFee();renderParentAttendance('month');renderParentHomework();renderParentWorksheet();renderParentTest();renderParentReport();switchParentTab('fee');};script.onerror=()=>{};script.src=SCRIPT_URL+'?action=parentData&rollNo='+rollNo+'&callback='+cbName;document.head.appendChild(script);}
 function switchParentTab(tab){['fee','attendance','homework','worksheet','test','report'].forEach(t=>{document.getElementById('pd-'+t).style.display=t===tab?'block':'none';document.getElementById('ptab-'+t).classList.toggle('active',t===tab);});}
-function parentLogout(){currentRole='';parentStudents=[];parentData={};document.getElementById('parent-view').style.display='none';document.getElementById('login-page').style.display='flex';document.getElementById('parentContact').value='';document.getElementById('parentPass').value='';document.getElementById('login-error').style.display='none';}
+function parentLogout(){currentRole='';currentUser={};parentStudents=[];parentData={};document.getElementById('parent-view').style.display='none';document.getElementById('login-page').style.display='flex';document.getElementById('parentContact').value='';document.getElementById('parentPass').value='';document.getElementById('login-error').style.display='none';}
 
 function renderParentFee(){const{student,payments}=parentData,paid=(payments||[]).reduce((s,p)=>s+(p.amount||0),0),balance=(student?.finalFee||0)-paid;document.getElementById('pd-fee-total').textContent='₹'+fmt(student?.finalFee||0);document.getElementById('pd-fee-paid').textContent='₹'+fmt(paid);document.getElementById('pd-fee-balance').textContent='₹'+fmt(balance);const hist=document.getElementById('pd-fee-history');if(!payments||payments.length===0){hist.innerHTML='<div class="empty">अजून payment नाही</div>';return;}hist.innerHTML=[...payments].reverse().map(p=>`<div class="payment-row"><div><div class="payment-amount">₹${fmt(p.amount)}</div><div class="payment-date">${String(p.date).substring(0,10)}${p.note?' • '+p.note:''}</div></div></div>`).join('');}
 function filterAttendance(filter,el){attFilter=filter;document.querySelectorAll('#pd-attendance .filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderParentAttendance(filter);}
@@ -651,6 +734,78 @@ function renderParentHomework(){const records=[...(parentData.homework||[])].sor
 function renderParentWorksheet(){const records=[...(parentData.worksheet||[])].sort((a,b)=>new Date(b.date)-new Date(a.date)),done=records.filter(r=>r.status==='Done').length,late=records.filter(r=>r.status==='Late').length,nd=records.filter(r=>r.status==='Not Done').length,total=records.length,pct=total>0?Math.round(((done+late)/total)*100):0;document.getElementById('pd-ws-done').textContent=done;document.getElementById('pd-ws-late').textContent=late;document.getElementById('pd-ws-nd').textContent=nd;document.getElementById('pd-ws-pct').textContent=pct+'%';document.getElementById('pd-ws-bar').style.width=pct+'%';document.getElementById('pd-ws-list').innerHTML=records.map(r=>`<div class="detail-card" style="margin-bottom:8px;"><div class="detail-card-body"><div style="display:flex;justify-content:space-between;font-size:13px;"><div><div style="font-weight:700;">${r.subject} — ${r.topic}</div><div style="color:var(--muted);font-size:11px;">${String(r.date).substring(0,10)}</div></div><span style="font-weight:700;color:${r.status==='Done'?'var(--green)':r.status==='Late'?'var(--accent2)':'var(--accent)'}">${r.status==='Done'?'✅':r.status==='Late'?'⏰':'❌'} ${r.status}</span></div></div></div>`).join('')||'<div class="empty">अजून record नाही</div>';}
 function renderParentTest(){const records=[...(parentData.tests||[])].sort((a,b)=>new Date(b.date)-new Date(a.date)),appeared=records.filter(r=>r.status==='Present').length,absent=records.length-appeared,attPct=records.length>0?Math.round((appeared/records.length)*100):0,withMarks=records.filter(r=>r.status==='Present'&&r.marks!==''&&r.outOf>0),avgPct=withMarks.length>0?Math.round(withMarks.reduce((s,r)=>s+(Number(r.marks)/Number(r.outOf)*100),0)/withMarks.length):0;document.getElementById('pd-test-appeared').textContent=appeared;document.getElementById('pd-test-absent').textContent=absent;document.getElementById('pd-test-att-pct').textContent=attPct+'%';document.getElementById('pd-test-att-bar').style.width=attPct+'%';document.getElementById('pd-test-avg-pct').textContent=avgPct+'%';document.getElementById('pd-test-avg-bar').style.width=avgPct+'%';document.getElementById('pd-test-list').innerHTML=records.map(r=>`<div class="detail-card" style="margin-bottom:8px;"><div class="detail-card-body"><div style="display:flex;justify-content:space-between;font-size:13px;"><div><div style="font-weight:700;">${r.subject} — ${r.topic}</div><div style="color:var(--muted);font-size:11px;">${String(r.date).substring(0,10)}</div></div><div style="text-align:right;"><div style="font-weight:700;color:${r.status==='Present'?'var(--green)':'var(--accent)'}">${r.status==='Present'?'✅':'❌'}</div><div style="font-size:13px;font-weight:700;color:var(--accent2);">${r.status==='Present'&&r.marks!==''?r.marks+'/'+r.outOf:'—'}</div></div></div></div></div>`).join('')||'<div class="empty">अजून test नाही</div>';}
 function renderParentReport(){const st=parentData.student||{};document.getElementById('rpt-name').textContent=st.name||'—';document.getElementById('rpt-info').textContent=(st.rollNo||'')+' • Class '+(st.cls||'');const att=parentData.attendance||[],hw=parentData.homework||[],ws=parentData.worksheet||[],tests=parentData.tests||[];const attPct=att.length>0?Math.round((att.filter(r=>r.status==='Present').length/att.length)*100):0,hwPct=hw.length>0?Math.round(((hw.filter(r=>r.status==='Done').length+hw.filter(r=>r.status==='Late').length)/hw.length)*100):0,wsPct=ws.length>0?Math.round(((ws.filter(r=>r.status==='Done').length+ws.filter(r=>r.status==='Late').length)/ws.length)*100):0,withM=tests.filter(r=>r.status==='Present'&&r.marks!==''&&r.outOf>0),testPct=withM.length>0?Math.round(withM.reduce((s,r)=>s+(Number(r.marks)/Number(r.outOf)*100),0)/withM.length):0,overall=Math.round((attPct+hwPct+wsPct+testPct)/4);document.getElementById('rpt-att-pct').textContent=attPct+'%';document.getElementById('rpt-hw-pct').textContent=hwPct+'%';document.getElementById('rpt-ws-pct').textContent=wsPct+'%';document.getElementById('rpt-test-pct').textContent=testPct+'%';document.getElementById('rpt-att-bar').style.width=attPct+'%';document.getElementById('rpt-hw-bar').style.width=hwPct+'%';document.getElementById('rpt-ws-bar').style.width=wsPct+'%';document.getElementById('rpt-test-bar').style.width=testPct+'%';document.getElementById('rpt-overall').textContent=overall>=80?'🟢 Excellent':overall>=60?'🟡 Good':'🔴 Needs Effort';}
+
+// SETTINGS — USER MANAGEMENT
+function loadUsers(){
+  const cbName='uCb_'+Date.now(),script=document.createElement('script');
+  let done=false;
+  const timer=setTimeout(()=>{if(done)return;done=true;cleanup();},10000);
+  function cleanup(){clearTimeout(timer);delete window[cbName];if(script.parentNode)script.parentNode.removeChild(script);}
+  window[cbName]=function(data){
+    if(done)return;done=true;cleanup();
+    renderUsersList(data.users||[]);
+  };
+  script.onerror=()=>{};
+  script.src=SCRIPT_URL+'?action=getUsers&callback='+cbName;
+  document.head.appendChild(script);
+}
+
+function renderUsersList(users){
+  const list=document.getElementById('users-list');
+  list.innerHTML=users.map(u=>`
+    <div class="detail-card" style="margin-bottom:8px;">
+      <div class="detail-card-body">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:14px;font-weight:700;">${u.name}</div>
+            <div style="font-size:12px;color:var(--muted);">${u.username} • ${u.role}</div>
+          </div>
+          <button onclick="deleteUser('${u.username}')"
+            style="background:rgba(233,69,96,.15);color:var(--accent);border:1px solid var(--accent);border-radius:8px;padding:6px 12px;font-family:'Baloo 2',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">❌</button>
+        </div>
+      </div>
+    </div>`).join('')||'<div class="empty">कोणी नाही</div>';
+}
+
+function addNewUser(){
+  const username=document.getElementById('new-user-username').value.trim();
+  const password=document.getElementById('new-user-password').value.trim();
+  const name=document.getElementById('new-user-name').value.trim();
+  const role=document.getElementById('new-user-role').value;
+  if(!username||!password||!name){alert('सर्व fields भरा');return;}
+  const cbName='auCb_'+Date.now(),script=document.createElement('script');
+  let done=false;
+  const timer=setTimeout(()=>{if(done)return;done=true;cleanup();},10000);
+  function cleanup(){clearTimeout(timer);delete window[cbName];if(script.parentNode)script.parentNode.removeChild(script);}
+  window[cbName]=function(data){
+    if(done)return;done=true;cleanup();
+    if(data.status==='success'){
+      alert('✅ User add झाला!');
+      document.getElementById('new-user-username').value='';
+      document.getElementById('new-user-password').value='';
+      document.getElementById('new-user-name').value='';
+      loadUsers();
+    }
+  };
+  script.onerror=()=>{};
+  script.src=SCRIPT_URL+'?action=saveUser&username='+encodeURIComponent(username)+'&password='+encodeURIComponent(password)+'&name='+encodeURIComponent(name)+'&role='+role+'&callback='+cbName;
+  document.head.appendChild(script);
+}
+
+function deleteUser(username){
+  if(!confirm(username+' delete करायचे आहे का?'))return;
+  const cbName='duCb_'+Date.now(),script=document.createElement('script');
+  let done=false;
+  const timer=setTimeout(()=>{if(done)return;done=true;cleanup();},10000);
+  function cleanup(){clearTimeout(timer);delete window[cbName];if(script.parentNode)script.parentNode.removeChild(script);}
+  window[cbName]=function(data){
+    if(done)return;done=true;cleanup();
+    if(data.status==='success'){alert('✅ Delete झाले!');loadUsers();}
+  };
+  script.onerror=()=>{};
+  script.src=SCRIPT_URL+'?action=deleteUser&username='+encodeURIComponent(username)+'&callback='+cbName;
+  document.head.appendChild(script);
+}
 
 // SETTINGS — FEE MASTER
 function loadFeeMasterSettings() {
