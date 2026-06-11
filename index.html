@@ -141,6 +141,7 @@ body{background:var(--bg);color:var(--text);font-family:'Baloo 2','Noto Sans Dev
 .section-title span{background:var(--accent);color:white;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}
 .empty{text-align:center;padding:30px;color:var(--muted);font-size:14px}
 .hidden{display:none!important}
+.logout-btn{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--muted);font-family:'Baloo 2',sans-serif;font-size:12px;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -168,9 +169,12 @@ body{background:var(--bg);color:var(--text);font-family:'Baloo 2','Noto Sans Dev
 
 <!-- PARENT VIEW -->
 <div id="parent-view" style="display:none;min-height:100vh;background:var(--bg);padding-bottom:80px;">
-  <div class="header">
-    <div class="header-left"><h1>⚡ Sankalp Classes</h1><p id="parent-welcome">नमस्कार!</p></div>
-    <button onclick="parentLogout()" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--muted);font-family:'Baloo 2',sans-serif;font-size:12px;cursor:pointer;">Logout</button>
+  <div style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);padding:16px 20px 12px;border-bottom:2px solid var(--accent);position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center;">
+    <div>
+      <h1 style="font-size:20px;font-weight:800;color:var(--accent);">⚡ Sankalp Classes</h1>
+      <p id="parent-welcome" style="font-size:11px;color:var(--muted);margin-top:1px;">नमस्कार!</p>
+    </div>
+    <button onclick="parentLogout()" class="logout-btn">🚪 Logout</button>
   </div>
   <div id="parent-students-list" style="padding:14px;">
     <div class="sec-title"><span>👨‍👩‍👧</span> विद्यार्थी</div>
@@ -278,9 +282,12 @@ body{background:var(--bg);color:var(--text);font-family:'Baloo 2','Noto Sans Dev
 </div>
 
 <!-- ADMIN HEADER -->
-<div class="header">
+<div class="header" id="admin-header">
   <div class="header-left"><h1>⚡ Sankalp Classes</h1><p>Soegaon</p></div>
-  <div class="header-right" id="lastUpdated">—</div>
+  <div class="header-right" style="display:flex;align-items:center;gap:10px;">
+    <span id="lastUpdated">—</span>
+    <button onclick="adminLogout()" id="admin-logout-btn" class="logout-btn" style="display:none;">🚪 Logout</button>
+  </div>
 </div>
 
 <!-- BOTTOM NAV -->
@@ -622,6 +629,10 @@ function doLogin(){
       currentRole=data.role;
       currentUser={username,name:data.name,role:data.role};
       document.getElementById('login-page').style.display='none';
+      saveSession(data.role, currentUser, null);
+      document.getElementById('admin-header').style.display='flex';
+      document.querySelector('.bottom-nav').style.display='flex';
+      document.getElementById('admin-logout-btn').style.display='block';
       loadData();
     } else if(data.role==='parent'&&data.students){
       currentRole='parent';
@@ -653,6 +664,7 @@ function parentLogin(){
     if(data.role==='parent'&&data.students&&data.students.length>0){
       currentRole='parent';parentStudents=data.students;
       document.getElementById('login-page').style.display='none';
+      saveSession('parent', null, data.students);
       showParentDashboard();
     } else {
       document.getElementById('login-error').style.display='block';
@@ -707,7 +719,52 @@ function setAtt(rollNo,status){attStatus[rollNo]=status;document.getElementById(
 function markAllPresent(){Object.keys(attStatus).forEach(rollNo=>setAtt(rollNo,'P'));}
 function updateAttCount(){const vals=Object.values(attStatus);document.getElementById('att-present-count').textContent=vals.filter(v=>v==='P').length;document.getElementById('att-absent-count').textContent=vals.filter(v=>v==='A').length;}
 
-async function saveAttendance(){const cls=document.getElementById('attClass').value,date=document.getElementById('attDate').value;if(!date){alert('दिनांक निवडा');return;}if(Object.keys(attStatus).length===0){alert('Students नाहीत');return;}const btn=document.querySelector('#act-attendance .btn-green');btn.textContent='⏳ Save करत आहे...';btn.disabled=true;const records=Object.entries(attStatus).map(([rollNo,status])=>{const st=allStudents.find(s=>s.rollNo===rollNo);return{date,rollNo,studentName:st?.name||'',cls,status:status==='P'?'Present':'Absent'};});const payload={type:'attendance',records},params=new URLSearchParams({data:JSON.stringify(payload)});try{await fetch(SCRIPT_URL+'?'+params.toString(),{mode:'no-cors'});alert('✅ Attendance save झाले! Present: '+records.filter(r=>r.status==='Present').length+', Absent: '+records.filter(r=>r.status==='Absent').length);}catch(e){alert('❌ Save नाही झाले');}btn.textContent='✅ Attendance Save करा';btn.disabled=false;}
+async function saveAttendance(){
+  const cls=document.getElementById('attClass').value,
+        date=document.getElementById('attDate').value;
+
+  if(!date){alert('दिनांक निवडा');return;}
+  if(Object.keys(attStatus).length===0){alert('Students नाहीत');return;}
+
+  const btn=document.querySelector('#act-attendance .btn-green');
+  btn.textContent='⏳ Save करत आहे.';
+  btn.disabled=true;
+
+  const records=Object.entries(attStatus).map(([rollNo,status])=>{
+    const st=allStudents.find(s=>s.rollNo===rollNo);
+    return {
+      date,rollNo,
+      studentName:st?.name||'',
+      cls,
+      status:status==='P'?'Present':'Absent'
+    };
+  });
+
+  const payload={type:'attendance',records},
+        params=new URLSearchParams({data:JSON.stringify(payload)});
+
+  try{
+  await fetch(SCRIPT_URL+'?'+params.toString(),{mode:'no-cors'});
+
+  alert('✅ Attendance save झाले! Present: '+
+    records.filter(r=>r.status==='Present').length+
+    ', Absent: '+
+    records.filter(r=>r.status==='Absent').length);
+
+  // View reset करा
+  document.getElementById('attClass').value = '';
+  document.getElementById('attDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('att-student-list').innerHTML = '';
+  document.getElementById('att-save-section').style.display = 'none';
+  attStatus = {};
+
+}catch(e){
+  alert('❌ Save नाही झाले');
+}
+
+  btn.textContent='✅ Attendance Save करा';
+  btn.disabled=false;
+}
 
 function loadActivityStudents(type){const clsId=type==='homework'?'hwClass':'wsClass',listId=type==='homework'?'hw-student-list':'ws-student-list',saveId=type==='homework'?'hw-save-section':'ws-save-section',cls=document.getElementById(clsId).value,list=document.getElementById(listId),saveSection=document.getElementById(saveId);if(type==='homework')hwStatus={};else wsStatus={};if(!cls){list.innerHTML='';saveSection.style.display='none';return;}const students=allStudents.filter(st=>st.cls===cls);if(students.length===0){list.innerHTML='<div class="empty">या class मध्ये कोणी नाही</div>';return;}students.forEach(st=>{if(type==='homework')hwStatus[st.rollNo]='D';else wsStatus[st.rollNo]='D';});const prefix=type==='homework'?'hw':'ws';list.innerHTML=students.map(st=>`<div class="att-student-row"><div><div style="font-size:14px;font-weight:700">${st.name}</div><div style="font-size:11px;color:var(--muted)">${st.rollNo}</div></div><div style="display:flex;gap:4px;"><button id="${prefix}-btn-D-${st.rollNo}" class="present-active" onclick="setActivity('${type}','${st.rollNo}','D')" style="padding:5px 8px;border-radius:8px;border:none;font-size:11px;font-weight:700;cursor:pointer;">✅</button><button id="${prefix}-btn-L-${st.rollNo}" onclick="setActivity('${type}','${st.rollNo}','L')" style="padding:5px 8px;border-radius:8px;border:none;font-size:11px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--muted);">⏰</button><button id="${prefix}-btn-N-${st.rollNo}" onclick="setActivity('${type}','${st.rollNo}','N')" style="padding:5px 8px;border-radius:8px;border:none;font-size:11px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--muted);">❌</button></div></div>`).join('');saveSection.style.display='block';updateActivityCount(type);}
 function setActivity(type,rollNo,status){const prefix=type==='homework'?'hw':'ws';if(type==='homework')hwStatus[rollNo]=status;else wsStatus[rollNo]=status;['D','L','N'].forEach(s=>{const btn=document.getElementById(`${prefix}-btn-${s}-${rollNo}`);if(s===status){btn.className=s==='D'?'present-active':s==='L'?'late-active':'absent-active';btn.style.background='';btn.style.color='';}else{btn.className='';btn.style.background='var(--surface)';btn.style.color='var(--muted)';}});updateActivityCount(type);}
@@ -725,7 +782,7 @@ function renderParentKids(){document.getElementById('parent-students-list').styl
 function showParentStudentsList(){document.getElementById('parent-students-list').style.display='block';document.getElementById('parent-detail').style.display='none';}
 function openParentStudent(rollNo,name,cls){document.getElementById('parent-students-list').style.display='none';document.getElementById('parent-detail').style.display='block';document.getElementById('pd-name').textContent=name;document.getElementById('pd-info').textContent=rollNo+' • Class '+cls;document.getElementById('pd-loading').style.display='block';['fee','attendance','homework','worksheet','test','report'].forEach(t=>document.getElementById('pd-'+t).style.display='none');switchParentTab('fee');const cbName='pdCb_'+Date.now(),script=document.createElement('script');let done=false;const timer=setTimeout(()=>{if(done)return;done=true;cleanup();document.getElementById('pd-loading').innerHTML='❌ Data load नाही झाला';},15000);function cleanup(){clearTimeout(timer);delete window[cbName];if(script.parentNode)script.parentNode.removeChild(script);}window[cbName]=function(data){if(done)return;done=true;cleanup();parentData=data;document.getElementById('pd-loading').style.display='none';const st=data.student||{};document.getElementById('pd-info').textContent=rollNo+' • Class '+cls+(st.medium&&st.medium!=='NA'?' • '+st.medium:'')+(st.subjects?' | '+st.subjects:'');renderParentFee();renderParentAttendance('month');renderParentHomework();renderParentWorksheet();renderParentTest();renderParentReport();switchParentTab('fee');};script.onerror=()=>{};script.src=SCRIPT_URL+'?action=parentData&rollNo='+rollNo+'&callback='+cbName;document.head.appendChild(script);}
 function switchParentTab(tab){['fee','attendance','homework','worksheet','test','report'].forEach(t=>{document.getElementById('pd-'+t).style.display=t===tab?'block':'none';document.getElementById('ptab-'+t).classList.toggle('active',t===tab);});}
-function parentLogout(){currentRole='';currentUser={};parentStudents=[];parentData={};document.getElementById('parent-view').style.display='none';document.getElementById('login-page').style.display='flex';document.getElementById('parentContact').value='';document.getElementById('parentPass').value='';document.getElementById('login-error').style.display='none';}
+function parentLogout(){sessionStorage.removeItem('sankalpSession');currentRole='';currentUser={};parentStudents=[];parentData={};document.getElementById('parent-view').style.display='none';document.getElementById('login-page').style.display='flex';document.getElementById('parentContact').value='';document.getElementById('parentPass').value='';document.getElementById('login-error').style.display='none';}
 
 function renderParentFee(){const{student,payments}=parentData,paid=(payments||[]).reduce((s,p)=>s+(p.amount||0),0),balance=(student?.finalFee||0)-paid;document.getElementById('pd-fee-total').textContent='₹'+fmt(student?.finalFee||0);document.getElementById('pd-fee-paid').textContent='₹'+fmt(paid);document.getElementById('pd-fee-balance').textContent='₹'+fmt(balance);const hist=document.getElementById('pd-fee-history');if(!payments||payments.length===0){hist.innerHTML='<div class="empty">अजून payment नाही</div>';return;}hist.innerHTML=[...payments].reverse().map(p=>`<div class="payment-row"><div><div class="payment-amount">₹${fmt(p.amount)}</div><div class="payment-date">${String(p.date).substring(0,10)}${p.note?' • '+p.note:''}</div></div></div>`).join('');}
 function filterAttendance(filter,el){attFilter=filter;document.querySelectorAll('#pd-attendance .filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderParentAttendance(filter);}
@@ -989,6 +1046,44 @@ function inactiveStudent() {
   document.head.appendChild(script);
 }
 
+function saveSession(role, user, students) {
+  try { sessionStorage.setItem('sankalpSession', JSON.stringify({ role, user: user||{}, students: students||[], time: Date.now() })); } catch(e) {}
+}
+
+function loadSession() {
+  try {
+    const raw = sessionStorage.getItem('sankalpSession');
+    if (!raw) return false;
+    const s = JSON.parse(raw);
+    if (Date.now() - s.time > 8*60*60*1000) { sessionStorage.removeItem('sankalpSession'); return false; }
+    if (s.role==='admin'||s.role==='teacher') {
+      currentRole=s.role; currentUser=s.user;
+      document.getElementById('login-page').style.display='none';
+      document.getElementById('admin-header').style.display='flex';
+      document.querySelector('.bottom-nav').style.display='flex';
+      document.getElementById('admin-logout-btn').style.display='block';
+      loadData(); return true;
+    } else if (s.role==='parent'&&s.students?.length>0) {
+      currentRole='parent'; parentStudents=s.students;
+      document.getElementById('login-page').style.display='none';
+      showParentDashboard(); return true;
+    }
+  } catch(e) {}
+  return false;
+}
+
+function adminLogout() {
+  if (!confirm('Logout करायचे आहे का?')) return;
+  sessionStorage.removeItem('sankalpSession');
+  currentRole=''; currentUser={}; allStudents=[]; allPayments=[];
+  document.getElementById('admin-header').style.display='none';
+  document.querySelector('.bottom-nav').style.display='none';
+  document.getElementById('admin-logout-btn').style.display='none';
+  document.getElementById('login-page').style.display='flex';
+  document.getElementById('adminUser').value='';
+  document.getElementById('adminPass').value='';
+}
+
 // INIT
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('service-worker.js');
@@ -1001,6 +1096,9 @@ document.getElementById('hwDate').value=today;
 document.getElementById('wsDate').value=today;
 document.getElementById('testDate').value=today;
 loadFeeMaster();
+document.getElementById('admin-header').style.display='none';
+document.querySelector('.bottom-nav').style.display='none';
+loadSession();
 </script>
 </body>
 </html>
