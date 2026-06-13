@@ -797,8 +797,8 @@ function renderNoticeList(){
 }
 
 function renderParentNotices(){
-  const target=currentStudent?.cls||'ALL';
-  let notices=allNotices.filter(n=>n.target==='ALL'||n.target===String(target));
+  const target = parentData?.student?.cls || 'ALL';
+  let notices = allNotices.filter(n => String(n.target) === 'ALL' || String(n.target) === String(target));
   const list=document.getElementById('parent-notice-list');
   if(notices.length===0){list.innerHTML='<div class="empty">कोणतेही notice नाही</div>';return;}
   list.innerHTML=notices.map(n=>`
