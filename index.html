@@ -188,6 +188,7 @@ body{background:var(--bg);color:var(--text);font-family:'Baloo 2','Noto Sans Dev
       <button class="act-tab active" id="ptab-fee" onclick="switchParentTab('fee')">💰 Fee</button>
       <button class="act-tab" id="ptab-attendance" onclick="switchParentTab('attendance')">📋 Attendance</button>
       <button class="act-tab" id="ptab-homework" onclick="switchParentTab('homework')">📝 Homework</button>
+      <button class="act-tab" id="ptab-notice" onclick="switchParentTab('notice')">📢 Notice</button>
       <button class="act-tab" id="ptab-worksheet" onclick="switchParentTab('worksheet')">📄 Worksheet</button>
       <button class="act-tab" id="ptab-test" onclick="switchParentTab('test')">✏️ Test</button>
       <button class="act-tab" id="ptab-report" onclick="switchParentTab('report')">📊 Report</button>
@@ -261,6 +262,9 @@ body{background:var(--bg);color:var(--text);font-family:'Baloo 2','Noto Sans Dev
       </div></div>
       <div id="pd-test-list"></div>
     </div>
+    <div id="pd-notice" style="display:none;">
+  <div id="parent-notice-list"></div>
+</div>
     <div id="pd-report" style="display:none;">
       <div style="background:var(--card);border:2px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:12px;">
         <div style="text-align:center;margin-bottom:16px;">
@@ -297,6 +301,7 @@ body{background:var(--bg);color:var(--text);font-family:'Baloo 2','Noto Sans Dev
   <button class="nav-btn" onclick="showPage('classes')" id="nav-classes"><span class="icon">🏫</span>Classes</button>
   <button class="nav-btn" onclick="showPage('admission')" id="nav-admission"><span class="icon">➕</span>Admission</button>
   <button class="nav-btn" onclick="showPage('activity')" id="nav-activity"><span class="icon">📋</span>Activity</button>
+  <button class="nav-btn" onclick="showPage('notice')" id="nav-notice"><span class="icon">📢</span>Notice</button>
   <button class="nav-btn" onclick="showPage('settings')" id="nav-settings"><span class="icon">⚙️</span>Settings</button>
 </div>
 
@@ -452,6 +457,54 @@ body{background:var(--bg);color:var(--text);font-family:'Baloo 2','Noto Sans Dev
   </div>
 </div>
 
+<!-- PAGE: NOTICE -->
+<div class="page" id="page-notice">
+  <div class="section-title"><span>📢</span> Notice Board</div>
+  
+  <div class="detail-card">
+    <div class="detail-card-header">✍️ नवीन Notice लिहा</div>
+    <div class="detail-card-body">
+      <div class="field">
+        <label>Title *</label>
+        <input type="text" id="noticeTitle" placeholder="उदा. Sunday Test Schedule">
+      </div>
+      
+      <div class="field">
+        <label>Message *</label>
+        <textarea id="noticeMessage" placeholder="उदा. Sunday test at 10 AM..." 
+          style="width:100%;min-height:100px;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:14px;outline:none;resize:vertical;"></textarea>
+      </div>
+      
+      <div class="row">
+        <div class="field">
+          <label>Priority</label>
+          <select id="noticePriority" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;-webkit-appearance:none;">
+            <option value="Normal">Normal</option>
+            <option value="Important">Important</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Target</label>
+          <select id="noticeTarget" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;-webkit-appearance:none;">
+            <option value="ALL">सर्व (ALL)</option>
+            <option value="10">10th Class</option>
+            <option value="11">11th Class</option>
+            <option value="12">12th Class</option>
+            <option value="7">7th Class</option>
+            <option value="8">8th Class</option>
+            <option value="9">9th Class</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn btn-green" onclick="saveNotice()">📢 Notice Save करा</button>
+    </div>
+  </div>
+
+  <div class="sec-title"><span>📢</span> सर्व Notices</div>
+  <div id="notice-list"></div>
+</div>
+
 <!-- PAGE 5: ACTIVITY -->
 <div class="page" id="page-activity">
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:16px;">
@@ -598,6 +651,7 @@ body{background:var(--bg);color:var(--text);font-family:'Baloo 2','Noto Sans Dev
 <script>
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbznCMImMCifV8RBAgavb2F6M9ya-wB-9QlFVhBwn3M42nMM_a6EMlGP1xKh-RiynJ5ALg/exec';
 let currentRole='',currentUser={},parentStudents=[],parentData={},attFilter='month';
+let allNotices=[];
 let allStudents=[],allPayments=[],currentStudent=null,currentFilter='all';
 let attStatus={},hwStatus={},wsStatus={},testStatus={};
 let FEE_MASTER={},selectedSubjects={},originalFee=0;
@@ -676,6 +730,90 @@ function parentLogin(){
 }
 
 // DASHBOARD
+async function loadNotices(){
+  const cbName='notCb_'+Date.now(),script=document.createElement('script');
+  let done=false;
+  const timer=setTimeout(()=>{if(done)return;done=true;cleanup();},10000);
+  function cleanup(){clearTimeout(timer);delete window[cbName];if(script.parentNode)script.parentNode.removeChild(script);}
+  window[cbName]=function(data){
+    if(done)return;done=true;cleanup();
+    allNotices=(data.notices||[]).sort((a,b)=>new Date(b.date)-new Date(a.date));
+    renderNoticeList();
+  };
+  script.onerror=()=>{};
+  script.src=SCRIPT_URL+'?action=getNotices&callback='+cbName;
+  document.head.appendChild(script);
+}
+async function saveNotice(){
+  const title=document.getElementById('noticeTitle').value.trim();
+  const message=document.getElementById('noticeMessage').value.trim();
+  const priority=document.getElementById('noticePriority').value;
+  const target=document.getElementById('noticeTarget').value;
+  
+  if(!title||!message){alert('Title आणि Message भरा');return;}
+  
+  const btn=document.querySelector('#page-notice .btn-green');
+  btn.textContent='⏳ Save करत आहे...';btn.disabled=true;
+  
+  const payload={
+    type:'notice',
+    date:new Date().toISOString().split('T')[0],
+    title,message,priority,target,
+    createdBy:currentUser.name||'Admin'
+  };
+  
+  const params=new URLSearchParams({data:JSON.stringify(payload)});
+  try{
+    await fetch(SCRIPT_URL+'?'+params.toString(),{mode:'no-cors'});
+    alert('✅ Notice Save झाला!');
+    document.getElementById('noticeTitle').value='';
+    document.getElementById('noticeMessage').value='';
+    document.getElementById('noticePriority').value='Normal';
+    document.getElementById('noticeTarget').value='ALL';
+    loadNotices();
+  }catch(e){alert('❌ Save नाही झाले');}
+  btn.textContent='📢 Notice Save करा';btn.disabled=false;
+}
+function renderNoticeList(){
+  const list=document.getElementById('notice-list');
+  if(allNotices.length===0){list.innerHTML='<div class="empty">अजून कोणतेही notice नाही</div>';return;}
+  list.innerHTML=allNotices.map(n=>`
+    <div class="detail-card" style="border-left:4px solid ${n.priority==='Important'?'var(--accent)':'var(--border)'};margin-bottom:12px;">
+      <div class="detail-card-body">
+        <div style="display:flex;justify-content:space-between;align-items:start;">
+          <div style="flex:1;">
+            <div style="font-size:15px;font-weight:700;color:${n.priority==='Important'?'var(--accent)':'var(--text)'}">${n.title}</div>
+            <div style="font-size:13px;color:var(--muted);margin-top:4px;">${n.message}</div>
+            <div style="display:flex;gap:8px;margin-top:8px;font-size:11px;color:var(--muted);">
+              <span>${n.date}</span>
+              <span>${n.target==='ALL'?'सर्वांना':'Class '+n.target}</span>
+              ${n.priority==='Important'?'<span style="color:var(--accent);font-weight:700;">⚠️ Important</span>':''}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderParentNotices(){
+  const target=currentStudent?.cls||'ALL';
+  let notices=allNotices.filter(n=>n.target==='ALL'||n.target===String(target));
+  const list=document.getElementById('parent-notice-list');
+  if(notices.length===0){list.innerHTML='<div class="empty">कोणतेही notice नाही</div>';return;}
+  list.innerHTML=notices.map(n=>`
+    <div class="detail-card" style="border-left:4px solid ${n.priority==='Important'?'var(--accent)':'var(--border)'};margin-bottom:12px;">
+      <div class="detail-card-body" style="background:${n.priority==='Important'?'rgba(233,69,96,.05)':'transparent'}">
+        <div style="font-size:15px;font-weight:700;color:${n.priority==='Important'?'var(--accent)':'var(--text)'}">${n.title}</div>
+        <div style="font-size:13px;color:var(--muted);margin:8px 0;">${n.message}</div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);">
+          <span>${n.date}</span>
+          ${n.priority==='Important'?'<span style="color:var(--accent);font-weight:700;">🔴 महत्वाचे</span>':''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
 function loadData(){if(currentRole!=='admin')return;document.getElementById('dash-loading').style.display='block';document.getElementById('dash-content').style.display='none';document.getElementById('dash-loading').innerHTML='<span class="spin">⏳</span>Sheet मधून data load होत आहे...';const cbName='sklCb_'+Date.now(),script=document.createElement('script');let done=false;const timer=setTimeout(()=>{if(done)return;done=true;cleanup();document.getElementById('dash-loading').innerHTML='❌ Data load नाही झाला.<br><small style="color:var(--muted)">Internet check करा</small><br><br><button onclick="loadData()" style="padding:10px 20px;background:var(--accent);color:white;border:none;border-radius:10px;font-family:\'Baloo 2\',sans-serif;font-size:14px;cursor:pointer;font-weight:700">🔄 Retry</button>';},15000);function cleanup(){clearTimeout(timer);delete window[cbName];if(script.parentNode)script.parentNode.removeChild(script);}window[cbName]=function(data){if(done)return;done=true;cleanup();allStudents=data.students||[];allPayments=data.payments||[];renderDashboard();renderStudents();renderClasses();initActivityClasses();document.getElementById('lastUpdated').textContent=new Date().toLocaleTimeString('mr-IN');};script.onerror=()=>{};script.src=SCRIPT_URL+'?action=dashboard&callback='+cbName;document.head.appendChild(script);}
 
 function renderDashboard(){document.getElementById('dash-loading').style.display='none';document.getElementById('dash-content').style.display='block';const tF=allStudents.reduce((s,st)=>s+(st.finalFee||0),0),tP=allStudents.reduce((s,st)=>s+getPaid(st.rollNo),0),tB=tF-tP;document.getElementById('total-students').textContent=allStudents.length;document.getElementById('total-fee').textContent='₹'+fmt(tF);document.getElementById('total-paid').textContent='₹'+fmt(tP);document.getElementById('total-balance').textContent='₹'+fmt(tB);const cm={};allStudents.forEach(st=>{const k='Class '+st.cls+(st.medium&&st.medium!=='NA'?' ('+st.medium+')':'');if(!cm[k])cm[k]={students:[],fee:0,paid:0};cm[k].students.push(st);cm[k].fee+=st.finalFee||0;cm[k].paid+=getPaid(st.rollNo);});const list=document.getElementById('class-summary-list');list.innerHTML='';Object.entries(cm).sort().forEach(([cls,d])=>{const bal=d.fee-d.paid,pct=d.fee>0?Math.round((d.paid/d.fee)*100):0;list.innerHTML+=`<div class="class-card"><div class="class-card-header"><div class="class-name">${cls}</div><div class="student-count">${d.students.length} विद्यार्थी</div></div><div class="fee-bars"><div class="fee-bar-item"><div class="fee-bar-label">Total</div><div class="fee-bar-value total">₹${fmt(d.fee)}</div></div><div class="fee-bar-item"><div class="fee-bar-label">Paid</div><div class="fee-bar-value paid">₹${fmt(d.paid)}</div></div><div class="fee-bar-item"><div class="fee-bar-label">Balance</div><div class="fee-bar-value balance">₹${fmt(bal)}</div></div></div><div class="progress-wrap"><div class="progress-fill" style="width:${pct}%"></div></div></div>`;});}
@@ -694,7 +832,7 @@ async function addPayment(){const amount=parseInt(document.getElementById('payAm
 
 function getPaid(rollNo){return allPayments.filter(p=>p.rollNo===rollNo).reduce((s,p)=>s+(p.amount||0),0);}
 function fmt(n){if(n>=100000)return(n/100000).toFixed(1)+'L';if(n>=1000)return(n/1000).toFixed(1)+'k';return n.toLocaleString('en-IN');}
-function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');document.getElementById('nav-'+name).classList.add('active');window.scrollTo(0,0);if (name === 'settings') { loadFeeMasterSettings(); loadUsers(); }}
+function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');document.getElementById('nav-'+name).classList.add('active');window.scrollTo(0,0);if (name === 'settings'){ loadFeeMasterSettings(); loadUsers(); }if (name === 'notice') { loadNotices(); }}
 
 // ADMISSION
 async function loadFeeMaster(){try{const res=await fetch(SCRIPT_URL),data=await res.json();if(data&&Object.keys(data).length>0)FEE_MASTER=data;else throw new Error('empty');}catch(e){FEE_MASTER=FEE_DEMO;}}
@@ -780,8 +918,8 @@ async function saveTest(){const cls=document.getElementById('testClass').value,d
 function showParentDashboard(){document.getElementById('parent-view').style.display='block';document.querySelector('.header').style.display='none';document.querySelector('.bottom-nav').style.display='none';document.querySelectorAll('.page').forEach(p=>p.style.display='none');renderParentKids();}
 function renderParentKids(){document.getElementById('parent-students-list').style.display='block';document.getElementById('parent-detail').style.display='none';document.getElementById('parent-kids-list').innerHTML=parentStudents.map(st=>`<div class="student-card" onclick="openParentStudent('${st.rollNo}','${st.name}','${st.cls}')"><div class="student-header"><div><div class="student-name">${st.name}</div><div class="student-roll">${st.rollNo} • Class ${st.cls}</div></div><div style="font-size:20px;">→</div></div></div>`).join('');}
 function showParentStudentsList(){document.getElementById('parent-students-list').style.display='block';document.getElementById('parent-detail').style.display='none';}
-function openParentStudent(rollNo,name,cls){document.getElementById('parent-students-list').style.display='none';document.getElementById('parent-detail').style.display='block';document.getElementById('pd-name').textContent=name;document.getElementById('pd-info').textContent=rollNo+' • Class '+cls;document.getElementById('pd-loading').style.display='block';['fee','attendance','homework','worksheet','test','report'].forEach(t=>document.getElementById('pd-'+t).style.display='none');switchParentTab('fee');const cbName='pdCb_'+Date.now(),script=document.createElement('script');let done=false;const timer=setTimeout(()=>{if(done)return;done=true;cleanup();document.getElementById('pd-loading').innerHTML='❌ Data load नाही झाला';},15000);function cleanup(){clearTimeout(timer);delete window[cbName];if(script.parentNode)script.parentNode.removeChild(script);}window[cbName]=function(data){if(done)return;done=true;cleanup();parentData=data;document.getElementById('pd-loading').style.display='none';const st=data.student||{};document.getElementById('pd-info').textContent=rollNo+' • Class '+cls+(st.medium&&st.medium!=='NA'?' • '+st.medium:'')+(st.subjects?' | '+st.subjects:'');renderParentFee();renderParentAttendance('month');renderParentHomework();renderParentWorksheet();renderParentTest();renderParentReport();switchParentTab('fee');};script.onerror=()=>{};script.src=SCRIPT_URL+'?action=parentData&rollNo='+rollNo+'&callback='+cbName;document.head.appendChild(script);}
-function switchParentTab(tab){['fee','attendance','homework','worksheet','test','report'].forEach(t=>{document.getElementById('pd-'+t).style.display=t===tab?'block':'none';document.getElementById('ptab-'+t).classList.toggle('active',t===tab);});}
+function openParentStudent(rollNo,name,cls){document.getElementById('parent-students-list').style.display='none';document.getElementById('parent-detail').style.display='block';document.getElementById('pd-name').textContent=name;document.getElementById('pd-info').textContent=rollNo+' • Class '+cls;document.getElementById('pd-loading').style.display='block';['fee','attendance','homework','worksheet','test','report'].forEach(t=>document.getElementById('pd-'+t).style.display='none');loadNotices();switchParentTab('fee');const cbName='pdCb_'+Date.now(),script=document.createElement('script');let done=false;const timer=setTimeout(()=>{if(done)return;done=true;cleanup();document.getElementById('pd-loading').innerHTML='❌ Data load नाही झाला';},15000);function cleanup(){clearTimeout(timer);delete window[cbName];if(script.parentNode)script.parentNode.removeChild(script);}window[cbName]=function(data){if(done)return;done=true;cleanup();parentData=data;document.getElementById('pd-loading').style.display='none';const st=data.student||{};document.getElementById('pd-info').textContent=rollNo+' • Class '+cls+(st.medium&&st.medium!=='NA'?' • '+st.medium:'')+(st.subjects?' | '+st.subjects:'');renderParentFee();renderParentAttendance('month');renderParentHomework();renderParentWorksheet();renderParentTest();renderParentReport();renderParentNotices();switchParentTab('fee');};script.onerror=()=>{};script.src=SCRIPT_URL+'?action=parentData&rollNo='+rollNo+'&callback='+cbName;document.head.appendChild(script);}
+function switchParentTab(tab){['fee','attendance','homework','worksheet','test','report','notice'].forEach(t=>{document.getElementById('pd-'+t).style.display=t===tab?'block':'none';document.getElementById('ptab-'+t).classList.toggle('active',t===tab);});}
 function parentLogout(){sessionStorage.removeItem('sankalpSession');currentRole='';currentUser={};parentStudents=[];parentData={};document.getElementById('parent-view').style.display='none';document.getElementById('login-page').style.display='flex';document.getElementById('parentContact').value='';document.getElementById('parentPass').value='';document.getElementById('login-error').style.display='none';}
 
 function renderParentFee(){const{student,payments}=parentData,paid=(payments||[]).reduce((s,p)=>s+(p.amount||0),0),balance=(student?.finalFee||0)-paid;document.getElementById('pd-fee-total').textContent='₹'+fmt(student?.finalFee||0);document.getElementById('pd-fee-paid').textContent='₹'+fmt(paid);document.getElementById('pd-fee-balance').textContent='₹'+fmt(balance);const hist=document.getElementById('pd-fee-history');if(!payments||payments.length===0){hist.innerHTML='<div class="empty">अजून payment नाही</div>';return;}hist.innerHTML=[...payments].reverse().map(p=>`<div class="payment-row"><div><div class="payment-amount">₹${fmt(p.amount)}</div><div class="payment-date">${String(p.date).substring(0,10)}${p.note?' • '+p.note:''}</div></div></div>`).join('');}
@@ -1039,6 +1177,7 @@ function inactiveStudent() {
       renderDashboard();
       renderStudents();
       renderClasses();
+      loadNotices();
     }
   };
   script.onerror = () => {};
