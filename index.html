@@ -939,7 +939,7 @@ function renderFeeReport() {
     const paid = getPaid(st.rollNo);
     const bal = (st.finalFee || 0) - paid;
     return `
-      <div class="student-card">
+      <div class="student-card" onclick="openStudent('${st.rollNo}')">
         <div class="student-header">
           <div>
             <div class="student-name">${st.name}</div>
