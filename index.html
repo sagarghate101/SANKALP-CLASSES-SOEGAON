@@ -302,6 +302,7 @@ body{background:var(--bg);color:var(--text);font-family:'Baloo 2','Noto Sans Dev
   <button class="nav-btn" onclick="showPage('admission')" id="nav-admission"><span class="icon">➕</span>Admission</button>
   <button class="nav-btn" onclick="showPage('activity')" id="nav-activity"><span class="icon">📋</span>Activity</button>
   <button class="nav-btn" onclick="showPage('notice')" id="nav-notice"><span class="icon">📢</span>Notice</button>
+  <button class="nav-btn" onclick="showPage('reports')" id="nav-reports"><span class="icon">📊</span>Reports</button>
   <button class="nav-btn" onclick="showPage('settings')" id="nav-settings"><span class="icon">⚙️</span>Settings</button>
 </div>
 
@@ -464,6 +465,50 @@ body{background:var(--bg);color:var(--text);font-family:'Baloo 2','Noto Sans Dev
       <button class="btn btn-green" onclick="addNewFee()">✅ Fee Save करा</button>
     </div>
   </div>
+</div>
+
+<!-- PAGE: REPORTS -->
+<div class="page" id="page-reports">
+  <div class="section-title"><span>📊</span> Fee Report</div>
+
+  <!-- Filters -->
+  <div class="row" style="margin-bottom:12px;">
+    <div class="field">
+      <label>Academic Year</label>
+      <select id="rpt-year" onchange="renderFeeReport()"
+        style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;-webkit-appearance:none;">
+        <option value="ALL">All Years</option>
+        <option value="2024-25">2024-25</option>
+        <option value="2025-26">2025-26</option>
+        <option value="2026-27">2026-27</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Class</label>
+      <select id="rpt-class" onchange="renderFeeReport()"
+        style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Baloo 2',sans-serif;font-size:15px;outline:none;-webkit-appearance:none;">
+        <option value="ALL">सर्व Classes</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Balance Filter -->
+  <div class="filter-row" style="margin-bottom:16px;">
+    <button class="filter-chip active" onclick="setRptBalFilter('ALL',this)">सर्व</button>
+    <button class="filter-chip" onclick="setRptBalFilter('DUE',this)">🔴 Balance आहे</button>
+    <button class="filter-chip" onclick="setRptBalFilter('CLEAR',this)">🟢 Clear</button>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-grid" style="margin-bottom:16px;">
+    <div class="sum-card blue"><div class="label">Students</div><div class="value" id="rpt-total-students">0</div></div>
+    <div class="sum-card orange"><div class="label">Total Fee</div><div class="value" id="rpt-total-fee">₹0</div></div>
+    <div class="sum-card green"><div class="label">Paid</div><div class="value" id="rpt-total-paid">₹0</div></div>
+    <div class="sum-card red"><div class="label">Balance</div><div class="value" id="rpt-total-balance">₹0</div></div>
+  </div>
+
+  <!-- Student List -->
+  <div id="fee-report-list"></div>
 </div>
 
 <!-- PAGE: NOTICE -->
@@ -833,6 +878,93 @@ function applyYearFilter(){
   renderClasses();
 }
 
+let rptBalFilter = 'ALL';
+
+function setRptBalFilter(filter, el) {
+  rptBalFilter = filter;
+  document.querySelectorAll('#page-reports .filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderFeeReport();
+}
+
+function initReportClasses() {
+  const classes = [...new Set(allStudents.map(st => st.cls))].sort((a, b) => a - b);
+  const sel = document.getElementById('rpt-class');
+  sel.innerHTML = '<option value="ALL">सर्व Classes</option>';
+  classes.forEach(cls => {
+    sel.innerHTML += `<option value="${cls}">Class ${cls}</option>`;
+  });
+}
+
+function renderFeeReport() {
+  const year = document.getElementById('rpt-year').value;
+  const cls = document.getElementById('rpt-class').value;
+
+  // Filter students
+  let students = allStudents;
+  if (year !== 'ALL') students = students.filter(s => s.year === year);
+  if (cls !== 'ALL') students = students.filter(s => s.cls === cls);
+
+  // Balance filter
+  if (rptBalFilter === 'DUE') {
+    students = students.filter(s => {
+      const bal = (s.finalFee || 0) - getPaid(s.rollNo);
+      return bal > 0;
+    });
+  } else if (rptBalFilter === 'CLEAR') {
+    students = students.filter(s => {
+      const bal = (s.finalFee || 0) - getPaid(s.rollNo);
+      return bal <= 0;
+    });
+  }
+
+  // Summary
+  const totalFee = students.reduce((s, st) => s + (st.finalFee || 0), 0);
+  const totalPaid = students.reduce((s, st) => s + getPaid(st.rollNo), 0);
+  const totalBal = totalFee - totalPaid;
+
+  document.getElementById('rpt-total-students').textContent = students.length;
+  document.getElementById('rpt-total-fee').textContent = '₹' + fmt(totalFee);
+  document.getElementById('rpt-total-paid').textContent = '₹' + fmt(totalPaid);
+  document.getElementById('rpt-total-balance').textContent = '₹' + fmt(totalBal);
+
+  // List
+  const list = document.getElementById('fee-report-list');
+  if (students.length === 0) {
+    list.innerHTML = '<div class="empty">कोणी सापडले नाही</div>';
+    return;
+  }
+
+  list.innerHTML = students.map(st => {
+    const paid = getPaid(st.rollNo);
+    const bal = (st.finalFee || 0) - paid;
+    return `
+      <div class="student-card">
+        <div class="student-header">
+          <div>
+            <div class="student-name">${st.name}</div>
+            <div class="student-roll">${st.rollNo} • Class ${st.cls}</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px;">
+              <div style="text-align:center;">
+                <div style="font-size:10px;color:var(--muted);font-weight:600;">TOTAL</div>
+                <div style="font-size:13px;font-weight:700;color:var(--blue);">₹${fmt(st.finalFee||0)}</div>
+              </div>
+              <div style="text-align:center;">
+                <div style="font-size:10px;color:var(--muted);font-weight:600;">PAID</div>
+                <div style="font-size:13px;font-weight:700;color:var(--green);">₹${fmt(paid)}</div>
+              </div>
+              <div style="text-align:center;">
+                <div style="font-size:10px;color:var(--muted);font-weight:600;">BALANCE</div>
+                <div style="font-size:13px;font-weight:700;color:${bal>0?'var(--accent)':'var(--green)'};">₹${fmt(bal)}</div>
+              </div>
+            </div>
+          </div>
+          <div class="balance-badge ${bal > 0 ? 'due' : 'clear'}">${bal > 0 ? '🔴 Due' : '✅ Clear'}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
 function renderDashboard(){document.getElementById('dash-loading').style.display='none';document.getElementById('dash-content').style.display='block';const filteredStudents = currentYearFilter==='ALL' 
   ? allStudents 
   : allStudents.filter(s => s.year === currentYearFilter);const tF=filteredStudents.reduce((s,st)=>s+(st.finalFee||0),0),tP=filteredStudents.reduce((s,st)=>s+getPaid(st.rollNo),0),tB=tF-tP;document.getElementById('total-students').textContent=filteredStudents.length;document.getElementById('total-fee').textContent='₹'+fmt(tF);document.getElementById('total-paid').textContent='₹'+fmt(tP);document.getElementById('total-balance').textContent='₹'+fmt(tB);const cm={};filteredStudents.forEach(st=>{const k='Class '+st.cls+(st.medium&&st.medium!=='NA'?' ('+st.medium+')':'');if(!cm[k])cm[k]={students:[],fee:0,paid:0};cm[k].students.push(st);cm[k].fee+=st.finalFee||0;cm[k].paid+=getPaid(st.rollNo);});const list=document.getElementById('class-summary-list');list.innerHTML='';Object.entries(cm).sort().forEach(([cls,d])=>{const bal=d.fee-d.paid,pct=d.fee>0?Math.round((d.paid/d.fee)*100):0;list.innerHTML+=`<div class="class-card"><div class="class-card-header"><div class="class-name">${cls}</div><div class="student-count">${d.students.length} विद्यार्थी</div></div><div class="fee-bars"><div class="fee-bar-item"><div class="fee-bar-label">Total</div><div class="fee-bar-value total">₹${fmt(d.fee)}</div></div><div class="fee-bar-item"><div class="fee-bar-label">Paid</div><div class="fee-bar-value paid">₹${fmt(d.paid)}</div></div><div class="fee-bar-item"><div class="fee-bar-label">Balance</div><div class="fee-bar-value balance">₹${fmt(bal)}</div></div></div><div class="progress-wrap"><div class="progress-fill" style="width:${pct}%"></div></div></div>`;});}
@@ -855,7 +987,7 @@ async function addPayment(){const amount=parseInt(document.getElementById('payAm
 
 function getPaid(rollNo){return allPayments.filter(p=>p.rollNo===rollNo).reduce((s,p)=>s+(p.amount||0),0);}
 function fmt(n){if(n>=100000)return(n/100000).toFixed(1)+'L';if(n>=1000)return(n/1000).toFixed(1)+'k';return n.toLocaleString('en-IN');}
-function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');document.getElementById('nav-'+name).classList.add('active');window.scrollTo(0,0);if (name === 'settings'){ loadFeeMasterSettings(); loadUsers(); }if (name === 'notice') { loadNotices(); }}
+function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');document.getElementById('nav-'+name).classList.add('active');window.scrollTo(0,0);if (name === 'settings'){ loadFeeMasterSettings(); loadUsers(); }if (name === 'notice') { loadNotices(); }if (name === 'reports') { initReportClasses(); renderFeeReport(); }}
 
 // ADMISSION
 async function loadFeeMaster(){try{const res=await fetch(SCRIPT_URL),data=await res.json();if(data&&Object.keys(data).length>0)FEE_MASTER=data;else throw new Error('empty');}catch(e){FEE_MASTER=FEE_DEMO;}}
